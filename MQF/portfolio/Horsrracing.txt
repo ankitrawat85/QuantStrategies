@@ -1,0 +1,67 @@
+import pandas as pd
+import numpy as np
+import random
+
+
+class Horseracing:
+
+    def __init__(self, horses: list, racingTrack: int):
+        self.horses = horses
+        self.racingTrack = racingTrack
+
+    def racing(self, df_, group):
+        return random.sample(list(df_.loc[group]), self.racingTrack)
+
+    def groupCreation(self):
+        columns_list = ["Ranking_" + str(i) for i in range(1, self.racingTrack + 1)]
+        index_list = ["Group_" + str(i) for i in range(1, self.racingTrack + 1)]
+        return pd.DataFrame([self.horses[x:x + self.racingTrack] for x in range(0, len(self.horses), self.racingTrack)],
+                            columns=columns_list, index=index_list)
+
+
+## Input Variable
+c = ["A1", "A2", "A3", "A4", "A5", "B6", "B7", "B8", "B9", "B10", "C11", "C12", "C13", "C14", "C15", "D16", "D17",
+     "D18", "D19", "D20", "E21", "E22", "E23", "E24", "E25"]
+racingTrack = 5
+
+#
+horseRacing = Horseracing(c, racingTrack)
+df_ = horseRacing.groupCreation()
+
+print("Group Creation : \n  {}".format(df_))
+
+Racing_1 = pd.DataFrame([horseRacing.racing(df_, i) for i in df_.index], columns=df_.columns, index=df_.index)
+
+print("\n 1. Result after First Race within each group  \n\n {}".format(Racing_1))
+
+df_firstRace = Racing_1.iloc[:, :-2]
+print("\n 2. Dropping 4th and 5th columns of all groups as they are not qualified for top 3 positions: \n\n {}".format(
+    df_firstRace))
+
+Racing_2 = df_firstRace[["Ranking_1"]].sample(frac=1)
+
+print("\n 3.  2nd round of racing of hourses got ranking_1 in 1st round of racing   : \n {}".format(Racing_2))
+print("\n 4.  We can drop last 2 groups in the  dataframe  as we need top 3 : \n\n {} ".format(Racing_2[:3]))
+
+df_all = pd.concat([Racing_2[:3], df_firstRace.iloc[:, 1:]], axis=1, ignore_index=False, join="inner")
+print("\n 5.  Add other members of top 3 groups : \n\n  {}".format(df_all))
+df_all.iat[1, 2] = "Nan"
+df_all.iat[2, 1] = "Nan"
+df_all.iat[2, 2] = "Nan"
+print("\n\n6. Remove Horses on Third position and Second Position : \n\n{} ".format(df_all))
+
+print("\n\n7. First Horse  : \n\n {} ".format(df_all.iat[0, 0]))
+t = df_all.values.reshape(1, -1)[0][1:]
+cleanedList = [x for x in list(t) if str(x) != 'Nan']
+print(
+    "\n\n8. To find second and Third Horse  we will go for Third round of racing for  below list of horses : \n\n {} ".format(
+        cleanedList))
+
+third_round_racing = random.sample(cleanedList, 5)
+print("\n\n9. Third round racing result, [fastest horse  -> Slowest] : \n\n {} ".format(third_round_racing))
+
+print("\n\n10. Top 2 horses after 3rd round of racing : \n\n {} ".format(third_round_racing[:2]))
+
+print("\n\n11. Top 3 horses after 3rd round of racing : {} and  {} ".format(df_all.iat[0, 0], third_round_racing[:2]))
+
+

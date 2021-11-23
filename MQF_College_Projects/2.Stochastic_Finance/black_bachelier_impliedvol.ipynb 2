@@ -1,0 +1,122 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "In this notebook we explain how do we generate the volatility smile plot. \n",
+    "\n",
+    "At-the-money (ATM) options are the most liquid - we will look for the option with the strike price ($K$) closest to the forward value $F$, and treat this as the ATM option.\n",
+    "\n",
+    "In an earlier notebook, we have covered how to compute implied volatility for a given option price.\n",
+    "\n",
+    "Suppose $S=100$, $r=0.05$, $T=1.0$, and suppose the ATM volatility is $\\sigma_{LN}=0.2$. Here the subscript \"LN\" stands for \"lognormal\"."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "image/png": "iVBORw0KGgoAAAANSUhEUgAAAYIAAAEKCAYAAAAfGVI8AAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAADh0RVh0U29mdHdhcmUAbWF0cGxvdGxpYiB2ZXJzaW9uMy4xLjMsIGh0dHA6Ly9tYXRwbG90bGliLm9yZy+AADFEAAAdUUlEQVR4nO3de5xVdb3/8debESTBvACSgQoWacZNGjCt8FaAYnitgyliWpRl9suy9IHpkXO66SmP+TCLo+YlS43UMPWI5oVUMgYDFRVFoxzlKKBhaiCXz++PtQY3w549a4C198ys9/Px2I/Z67u+a+3PLC6f/f1+1/p+FRGYmVlxdal1AGZmVltOBGZmBedEYGZWcE4EZmYF50RgZlZwTgRmZgWXayKQNE7SIkmLJZ1dZv/JkpZJmp++Pp9nPGZmtqlt8jqxpDrgMuCTQCMwV9LMiHiyWdUbI+L0vOIwM7PK8mwRjAIWR8TzEfE2cANwZI6fZ2ZmmyG3FgHQD3ihZLsR2K9MvWMljQaeAb4eES80ryBpCjAFoEePHh/ee++9cwjXzKzzmjdv3vKI6FNuX56JQGXKms9ncRvw64hYLelLwDXAIZscFDEdmA5QX18fDQ0NWztWM7NOTdLfWtqXZ9dQI7BbyXZ/4KXSChGxIiJWp5v/A3w4x3jMzKyMPBPBXGCQpIGSugETgZmlFSTtWrI5AXgqx3jMzKyM3LqGImKtpNOBu4A64KqIWChpGtAQETOBMyRNANYCrwIn5xWPmZmVp442DbXHCMxqa82aNTQ2NrJq1apah2JldO/enf79+9O1a9eNyiXNi4j6csfkOVhsZp1QY2Mj22+/PQMGDEAqd0+I1UpEsGLFChobGxk4cGDm4zzFhJm1yapVq+jVq5eTQDskiV69erW5teZEYGZt5iTQfm3On40TgZlZwTkRmFmHU1dXx/Dhwxk2bBgjRozg4YcfBmDJkiUMHjx4s8550EEH0dqNKG+99RYnnHACQ4YMYfDgwXzsYx/jjTfeaLH+ySefzIwZMzLHsCXxbwkPFptZh/Oud72L+fPnA3DXXXdxzjnn8MADD+T+uZdccgl9+/bl8ccfB2DRokWb3J3TEblFYGYd2uuvv85OO+20SfmSJUv4+Mc/zogRIzZqNQBceOGFDBkyhGHDhnH22RvPkL9+/XomT57Mueeeu8k5ly5dSr9+/TZs77XXXmy77bYAXHvttQwdOpRhw4YxadKkDXVmz57NAQccwJ577rmhdRARnHXWWQwePJghQ4Zw4403bvJZ69at46yzzmLkyJEMHTqUn//85xtiGD16NMOHD2fw4MH88Y9/bMvlKsstAjPbbAPOvj2X8y75wfiK+//1r38xfPhwVq1axdKlS7n33ns3qbPLLrtw99130717d5599lmOP/54GhoauPPOO7n11lt55JFH2G677Xj11Vc3HLN27VpOOOEEBg8ezNSpUzc55ymnnMKYMWOYMWMGhx56KJMnT2bQoEEsXLiQ7373uzz00EP07t17o3MuXbqUBx98kKeffpoJEyZw3HHHcfPNNzN//nwWLFjA8uXLGTlyJKNHj97os6688kp22GEH5s6dy+rVq/noRz/KmDFjuPnmmxk7dixTp05l3bp1vPXWW229vJtwIjCzDqe0a2jOnDmcdNJJPPHEExvVWbNmDaeffjrz58+nrq6OZ555BoB77rmHz33uc2y33XYA7LzzzhuO+eIXv8hnPvOZskkAYPjw4Tz//PPMmjWLe+65h5EjRzJnzhzuvfdejjvuOHr37r3JOY866ii6dOnCPvvsw8svvwzAgw8+yPHHH09dXR19+/blwAMPZO7cuQwdOnTDcbNmzeKxxx7b0IpYuXIlzz77LCNHjuSUU05hzZo1HHXUUQwfPnyLriU4EZjZFmjtm3s17L///ixfvpxly5ZtVH7xxRfTt29fFixYwPr16+nevTuQdMu0dIvlAQccwH333cc3vvENunfvzi233MIFF1wAwBVXXEF9fT09e/bkmGOO4ZhjjqFLly7ccccddO3atcVzNnUdNX126c9KIoJLL72UsWPHbrJv9uzZ3H777UyaNImzzjqLk046qdXzVeIxAjPr0J5++mnWrVtHr169NipfuXIlu+66K126dOG6665j3bp1AIwZM4arrrpqQ5dKaTfOqaeeyuGHH86nP/1p1q5dy9FHH838+fOZP38+9fX1PPTQQ7z22msAvP322zz55JPsscceHHroodx0002sWLFik3OWM3r0aG688UbWrVvHsmXLmD17NqNGjdqoztixY7n88stZs2YNAM888wxvvvkmf/vb39hll134whe+wKmnnsqjjz66BVcv4RaBmXU4TWMEkHxzvuaaa6ir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\n",
+      "text/plain": [
+       "<Figure size 432x288 with 1 Axes>"
+      ]
+     },
+     "metadata": {
+      "needs_background": "light"
+     },
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "import pandas\n",
+    "import numpy as np\n",
+    "from scipy.stats import norm\n",
+    "from scipy.optimize import brentq\n",
+    "import matplotlib.pylab as plt\n",
+    "\n",
+    "\n",
+    "def BlackScholesCall(S, K, r, sigma, T):\n",
+    "    d1 = (np.log(S/K)+(r+sigma**2/2)*T) / (sigma*np.sqrt(T))\n",
+    "    d2 = d1 - sigma*np.sqrt(T)\n",
+    "    return S*norm.cdf(d1) - K*np.exp(-r*T)*norm.cdf(d2)\n",
+    "\n",
+    "\n",
+    "def impliedCallVolatility(S, K, r, price, T):\n",
+    "    impliedVol = brentq(lambda x: price -\n",
+    "                        BlackScholesCall(S, K, r, x, T),\n",
+    "                        1e-6, 1)\n",
+    "\n",
+    "    return impliedVol\n",
+    "\n",
+    "\n",
+    "S = 100\n",
+    "r = 0.05\n",
+    "T = 1.0\n",
+    "sigma = 0.2\n",
+    "F = S*np.exp(r*T)\n",
+    "strikes = np.linspace(50, 150, 100)\n",
+    "\n",
+    "summary = []\n",
+    "for K in strikes:\n",
+    "    price = BlackScholesCall(S, K, r, sigma, T)\n",
+    "    impliedvol = impliedCallVolatility(S, K, r, price, T)\n",
+    "    summary.append([K, impliedvol])\n",
+    "\n",
+    "df = pandas.DataFrame(summary, columns=['strike', 'vol'])\n",
+    "df.set_index('strike', drop=True, inplace=True)\n",
+    "plt.plot(df['vol'], linewidth=2.0, label='Black-Scholes')\n",
+    "plt.axis([30, 170, 0, 0.5])\n",
+    "plt.legend()\n",
+    "plt.xlabel('Strikes')\n",
+    "plt.ylabel('Implied lognormal volatility')\n",
+    "plt.show()\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Clearly, we get a flat surface, because we use the same lognormal volatility to price the options across all strikes. In other words, if the Black-Scholes' assumption that the stock price follows lognormal distribution with a constant variance, then we should expect the implied volatilities to be the same across all strikes.\n",
+    "\n",
+    "For Bachelier model, suppose we use the model\n",
+    "\\begin{equation*}\n",
+    "dS_t = \\sigma_{N} S_0 dW_t \n",
+    "\\end{equation*}\n",
+    "\n",
+    "Try to generate the implied volatility curve using Bachelier model."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.7.6"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}

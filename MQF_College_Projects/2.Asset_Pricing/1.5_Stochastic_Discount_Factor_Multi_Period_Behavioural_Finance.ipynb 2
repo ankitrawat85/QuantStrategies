@@ -1,0 +1,413 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Assignment 3 Submission - Asset Pricing\n",
+    "> Student Name : Ankit Rawat\n",
+    "\n",
+    "> Batch : G2 "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import pandas as pd\n",
+    "import numpy as np"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "## Delta : Discount factor\n",
+    "delta_variable_δ =0.99\n",
+    "gamma_variable_γ = 1\n",
+    "lambda_variable_λ=2\n",
+    "np.random.seed(101010)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df_ = pd.DataFrame(np.random.randn(10**4), columns = {\"epsilon\"})"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Risk Free Rate Calculation \n",
+    "a = t+1\n",
+    "\\begin{equation*}\n",
+    "\\large ln C_a = \\large ln C_t + \\mu \\ sigma * \\epsilon_a\n",
+    "\\end{equation*}\n",
+    "\n",
+    "\n",
+    "\n",
+    "### Risk Free Rate Calculation \n",
+    "\\begin{equation*}\n",
+    "\\large R_f = \\large ({e}^{ρ + γμ - \\frac {1}{2} γ ^2 σ ^2 })\n",
+    "\\end{equation*}\n",
+    "\n",
+    "### Equity Premium \n",
+    "\\begin{equation*}\n",
+    "\\large EquityPremium = \\large \\gamma * \\sigma^2\n",
+    "\\end{equation*}\n",
+    "\n",
+    "\n",
+    "\n",
+    "### Equity return \n",
+    "\\begin{equation*}\n",
+    "\\large E_t[ R_t) ] = \\large ({e}^{ρ + γμ - \\frac {1}{2} γ ^2 σ ^2 + γ * σ ^2  })\n",
+    "\\end{equation*}\n",
+    "\n",
+    "\n",
+    "### Return using Kappa \n",
+    "c = t+1 \n",
+    "\\begin{equation*}\n",
+    "\\large R_c = \\large \\kappa * \\frac {C_c} {C_t}\n",
+    "\\end{equation*}\n",
+    "\n",
+    "\\begin{equation*}\n",
+    "\\large E_t[ R_t) ] = \\large \\kappa * {e}^{ \\mu + \\frac {1}{2} * σ ^2 }\n",
+    "\\end{equation*}"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def Equity_premium ( sigma,gamma):\n",
+    "    return  ( sigma * gamma**2 )"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def Equity_return ( sigma,gamma,mean,std_deviation):\n",
+    "    return np.exp(  -np.log(sigma)  + gamma*mean  -  (0.5) * np.square(gamma) * np.square(std_deviation) + sigma * sigma **2 )"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def risk_free_rate_Calculation ( sigma,gamma,mean,std_deviation):\n",
+    "    return np.exp(  -np.log(sigma)  + gamma*mean  -  (0.5) * np.square(gamma) * np.square(std_deviation))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "print (\" Risk Free Rate :  {} \".format(risk_free_rate_Calculation( 0.99,1,1.84/100,3.79/100)))\n",
+    "risk_free_rate  = round(risk_free_rate_Calculation( 0.99,1,1.84/100,3.79/100),4)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Consumption growth has a lognormal distribution: \n",
+    "\\begin{equation*}\n",
+    "\\large {ln \\tilde{g} = 0.02 + 0.02 ϵ̃}\n",
+    "\\end{equation*}"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df_[\"Consumption_growth\"] = np.exp( 0.02  + 0.02 * df_[\"epsilon\"] )"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "> ### Kappa Calculation  (Written as x here in calculations): \n",
+    "\\begin{equation*}\n",
+    "\\large {κ =  1 + \\frac{Dividend} {price}}\n",
+    "\\end{equation*}"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def kappa (dividend,price):\n",
+    "    return ((1 + (dividend/(price))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "delta_variable_δ =0.99\n",
+    "gamma_variable_γ = 1\n",
+    "lambda_variable_λ=2"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def expected_utility(x):\n",
+    "    utility = []\n",
+    "    for i in df_[\"Consumption_growth\"]:\n",
+    "        if x *i >= 1.0303:\n",
+    "            Financial_Gain_Loss = x*i - 1.0303\n",
+    "        else: \n",
+    "            Financial_Gain_Loss = 2 * ( x*i - 1.0303 )\n",
+    "        utility.append(Financial_Gain_Loss)\n",
+    "    \n",
+    "    return np.mean(utility)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def Error_Calculation(x):\n",
+    "    return delta_variable_δ * b0 * expected_utility(x) + 0.99 * x -1"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def bisection1(a,b):\n",
+    "    if (Error_Calculation(a) * Error_Calculation(b) >=0):\n",
+    "        print (\"wrong\")\n",
+    "        return\n",
+    "    \n",
+    "    c = a\n",
+    "    while np.abs(Error_Calculation(c)) >= 10**(-5):\n",
+    "        c = (a+b)/2\n",
+    "        \n",
+    "        if (Error_Calculation(c)*Error_Calculation(a) <0):\n",
+    "            b = c\n",
+    "        else :\n",
+    "            a =c \n",
+    "    \n",
+    "    return c"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "root = []\n",
+    "b0_arange  = np.arange(0,10.1,0.1)\n",
+    "for b0 in b0_arange:\n",
+    "    c = bisection1(1,1.1)\n",
+    "    root.append( [round(c,5)])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "root"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "###   Price Dividend Ratio: \n",
+    "\\begin{equation*}\n",
+    "\\large {\\frac{P} {D}} =  \\large {\\frac{1} {x-1}}\n",
+    "\\end{equation*}"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "price_div_ratio = []\n",
+    "for x in pd.DataFrame(root).values:\n",
+    "    ratio =  1 /( x -1)\n",
+    "    price_div_ratio.append(ratio)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import matplotlib.pyplot as plt\n",
+    "plt.figure(figsize = (12,7))\n",
+    "plt.plot(b0_arange,price_div_ratio)\n",
+    "plt.xlabel('b0',fontsize =20)\n",
+    "plt.ylabel('Price / Dividend ',fontsize =20)\n",
+    "plt.title(\"Pirce/Dividend Vs b0\",fontsize =20)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Calculate the expected market Return"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "expected_market_return = []\n",
+    "for x in root:\n",
+    "    r  = np.multiply(x , np.exp(0.02 + (1/2) * (0.02 ** 2)))\n",
+    "    expected_market_return.append(r)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "equity_premium = np.array(expected_market_return) - 1.0303"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "plt.figure(figsize = (12,7))\n",
+    "plt.plot(b0_arange,equity_premium)\n",
+    "plt.xlabel('b0',fontsize =20)\n",
+    "plt.ylabel('Equity Premium ',fontsize =20)\n",
+    "plt.title(\"Equity Premium Vs b0\",fontsize =20)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "> ### Briefly explain the economic significance of the investor's utility function for financial gain or loss [i.e., 𝜈(R)]b"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "* The term “loss aversion” describes the greater sensitivity to losses as compared to gains; \n",
+    "* the expected negative feeling associated with a loss is larger than the expected positive feeling with a gain of equal size. Loss aversion is not necessarily a judgment error, it might as well reflect the true preferences of people, who strongly dislike losses ( Risk Averse Investor ) . \n",
+    "* Alternatively, it is argued that loss aversion represents an emotional overreaction toward losses driven by fear. Hence, the weight (λ) assigned on loss is more than the weight assigned on gain.\n",
+    "* In prospect theory, the value function is steeper for losses than for gains, representing the greater sensitivity (λ) toward losses."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "> ### economic significance of the parameters b0 and 𝜆."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "* λ represents the loss aversion coefficient. For any λ > 1 an individual is said to be loss averse. In our case  λ = 2 hence we are cosidering risk averse investros for whome utility of loss is more than gain "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "> ### economic significance of the parameters b0"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "* On an investment, investor receives utility from individual consumption and Financial Gain and Loss.\n",
+    "* Since both consumption and Financial Gain / Loss have different unit hence we use it to convert Gain/Loss magnitude to make it comparable to Consumption\n",
+    "* b0 determines amount of emphasis investor puts on utility from financial gain / loss verses utility of consumption\n",
+    "* Higher the b0 value more weighted for Financial gain / loss\n",
+    "* Also as b0 -> infinity, equity premium becomes constant.\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "np.log(0.7)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.7.6"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 4
+}
