@@ -5,7 +5,6 @@ from sklearn.preprocessing import StandardScaler
 class normalization():
 
     def __init__(self,df_ :pd.DataFrame):
-
         self.df_ = df_
 
     def normalize_z_Score(self):

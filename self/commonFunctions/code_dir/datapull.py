@@ -61,9 +61,15 @@ class  data():
         self.normalize = 3
         self.StandardScaler = 4
         self.fit_transform = 1
-    
-    def downloadData(self,source,stock,start,end,col):
         df_ = pd.DataFrame()
+
+    def downaloadAllCol(self,source,stock,start,end):
+        print(stock,start,end)
+        df_ = yf.download(stock,start,end)
+        return df_
+
+    def downloadData(self,source,stock,start,end,col):
+
         for i in np.arange(0, len(stock), 1):
                 #if (i == 0):
                     df_stock = pd.DataFrame()
@@ -73,6 +79,7 @@ class  data():
                         df_stock = yf.download(str(stock[i]), start, end)
                         df_stock = pd.DataFrame(df_stock[col]).rename(columns = {col:str(stock[i]).split(".")[0]})
                         df_ = pd.concat([df_, df_stock], axis=1, ignore_index=False)
+                        print(df_)
 
                     elif (str(source).lower() == "yahoofinancial"):
                         yahoo_financials = YahooFinancials(str(stock[i]))
@@ -96,8 +103,8 @@ class  data():
         return df_
 
     
-    def logReturn(self,data,shift):
-        return np.log(data) - np.log(data.shift(shift))
+    def logReturn(data,shift):
+        return pd.DataFrame(np.log(data) - np.log(data.shift(shift)))
     
     def dataNormalization(self,data,logic,fit_transform):
         print (data)
@@ -159,9 +166,3 @@ class models():
     
     def ARMA(self,data,p,q):
         return sm.tsa.ARMA(data, (p,q)).fit(disp=-1)
-
-
-'''
-
-
-'''

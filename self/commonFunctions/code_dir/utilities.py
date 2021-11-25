@@ -54,4 +54,6 @@ def main():
     import warnings
     import matplotlib.pyplot as plt
 if __name__ == "__main__":
+    import os
+    root_DIR = os.path.dirname(os.path.abspath(__file__))
     main()

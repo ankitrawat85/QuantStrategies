@@ -77,6 +77,9 @@ class StatFunction():
         else:
             return ("Correct data not provided")
 
+    def movingAverage(self,data,numberofDays):
+        return pd.DataFrame(data).rolling(numberofDays).mean()
+
 
     def dataNormalization(self, data, logic, fit_transform):
         print("inside denormalization")
