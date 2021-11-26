@@ -227,3 +227,5 @@ if __name__ == "__main__":
     strat1.mastrategy()
     strat2.mastrategy()
     strat3.mastrategy()
+
+## Completed
