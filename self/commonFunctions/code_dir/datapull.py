@@ -50,6 +50,8 @@ import random
 import warnings
 import matplotlib.pyplot as plt
 from yahoofinancials import YahooFinancials
+# Import get_history function from nsepy module
+from nsepy import get_history
 
 
 class  data():
@@ -63,16 +65,26 @@ class  data():
         self.fit_transform = 1
         df_ = pd.DataFrame()
 
+    def datadownloadFutureNSE(self,index,stock,start,end,expiry):
+        nifty_fut = get_history(symbol='NIFTY',
+                                start=start,
+                                end=end,
+                                futures=True,
+                                index=True,
+                                expiry_date=expiry)
+
+        return nifty_fut
+
+
     def downaloadAllCol(self,source,stock,start,end):
         print(stock,start,end)
         df_ = yf.download(stock,start,end)
         return df_
 
     def downloadData(self,source,stock,start,end,col):
-
         for i in np.arange(0, len(stock), 1):
                 #if (i == 0):
-                    df_stock = pd.DataFrame()
+                    df_ = pd.DataFrame()
                     if (str(source).lower() == "yahoo"):
                         print ("Stock downaload : ")
                         print (str(stock[i]))

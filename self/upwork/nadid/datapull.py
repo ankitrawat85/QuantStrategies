@@ -10,9 +10,13 @@ import warnings
 import matplotlib.pyplot as plt
 import pandas as pd
 import sys
-sys.path.append('/Users/myworld/Desktop/smu/Classes/Self/Code/Quant/QR')
-from self.commonFunctions.code_dir.datapull import data,dataValidation,graph,stationary,models
-data_start = "2010-01-01"
-data_end = "2021-11-21"
+data_start = "2021-01-01"
+data_end = "2021-11-26"
 df_stock = yf.download("infy.ns", data_start, data_end)
-print(df_stock)
+#print(df_stock)
+df_stock.to_csv("infy.csv")
+
+#data = yf.download(tickers='infy.ns', period='3mo', interval='1d')
+#Print data
+#print(data.head(10))
+#data.to_csv("infy.csv")

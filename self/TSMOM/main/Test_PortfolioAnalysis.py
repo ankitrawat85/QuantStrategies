@@ -13,8 +13,8 @@ import warnings
 import matplotlib.pyplot as plt
 import pandas as pd
 import sys
-sys.path.append('/Users/myworld/Desktop/smu/Classes/Self/Code/Quant/venv/')
-from commonFunctions.code_dir.datapull import data,dataValidation,graph,stationary,models
+sys.path.append('/Users/myworld/Desktop/smu/Classes/Self/Code/Quant/QR')
+from self.commonFunctions.code_dir.datapull import data,dataValidation,graph,stationary,models
 class Test_PortfolioAnalysis():
 
     def __init__(self,*args,**kargs):
@@ -40,6 +40,7 @@ class Test_PortfolioAnalysis():
 
 x  = Test_PortfolioAnalysis().processing()
 df_ = pd.DataFrame(x)
+df_.to_csv("data.csv")
 print (df_.head(10))
 #df_HI = df_[["HDFCBANK","ICICIBANK"]].dropna(axis =0)
 #print (df_HI)

@@ -176,11 +176,7 @@ class Portfolio:
                 if trading_signal == -1:                         ## Sell share
                     if (liquidatePosition == 1):
                         if (self.maxstocks - abs(np.sum(self.df_["Stock_BUY_Sell"])) > abs(trading_signal)):
-                            if (np.sum(self.df_["Stock_BUY_Sell"]) > 0 ):
                                 self.df_["Stock_BUY_Sell"].iat[self.row+1] = trading_signal
-                            else:
-                                self.df_["Stock_BUY_Sell"].iat[self.row + 1] = 0
-
                         elif (np.sign(np.sum(self.df_["Stock_BUY_Sell"])) < 0):
                                 self.df_["Stock_BUY_Sell"].iat[self.row + 1] = -(np.sum(self.df_["Stock_BUY_Sell"])+self.maxstocks)
                         else:
@@ -188,7 +184,6 @@ class Portfolio:
 
                     else:
                         if np.sum(self.df_["Stock_BUY_Sell"].iloc[:self.row]) < 0:
-                            self.portfolio.append([self.CurrentOpenPrice, np.sum(self.portfolio["Quantity"]), 0, 0])
                             self.df_["Stock_BUY_Sell"].iat[self.row + 1] = np.sum(self.df_["Stock_BUY_Sell"].iloc[:self.row+1]) * liquidatePosition
                         else:
                             self.df_["Stock_BUY_Sell"].iat[self.row + 1] = 0
@@ -214,8 +209,8 @@ class Portfolio:
         df_pnl = pd.merge(self.df_, pnl, how='inner', left_index=True, right_index=True)
         df_pnl = df_pnl.drop("Daily_Log_Return",axis =1 )
         print(df_pnl)
-        df_pnl.to_csv("masterFileGenerated.csv")
-        df_pnl["Realised_PNL"].to_csv("Realised_PNL.csv")
+        df_pnl.to_csv("masterFileGenerated_infy.csv")
+        df_pnl["Realised_PNL"].to_csv("Realised_PNL_infy.csv")
         df_pnl[["Realised_PNL"]].plot()
         plt.title("Cummulative_PNL_maxstocks_"+ str(self.maxstocks))
         plt.xlabel("Date")
@@ -225,13 +220,13 @@ class Portfolio:
 
         print ("Moving Average Strategy calcualtion Completed")
 if __name__ == "__main__":
-    strat1 = Portfolio(file="infy.csv",T1= 10,T2=30, field="Close",returnshift= 1,totalcash=10000000,delta=0.02,maxstocks =30)
-    strat2 = Portfolio(file="infy.csv", T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000, delta=0.02,
-                      maxstocks=1000)
-    strat3 = Portfolio(file="infy.csv", T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000, delta=0.02,
+    strat1 = Portfolio(file="SPY.csv",T1= 10,T2=30, field="Close",returnshift= 1,totalcash=10000000,delta=0.02,maxstocks =10)
+    strat2 = Portfolio(file="SPY.csv", T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000, delta=0.02,
+                      maxstocks=50)
+    strat3 = Portfolio(file="SPY.csv", T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000, delta=0.02,
                       maxstocks=20)
-    #strat1.mastrategy()
+    strat1.mastrategy()
     strat2.mastrategy()
-    #strat3.mastrategy()
+    strat3.mastrategy()
 
 ## Completed
