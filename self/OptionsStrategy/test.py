@@ -298,3 +298,4 @@ def weightage_strategy_pnl():
 weightage_strategy_pnl().plot(figsize=(10, 5))
 plt.ylabel("Strategy PnL")
 plt.show()
+# completed
