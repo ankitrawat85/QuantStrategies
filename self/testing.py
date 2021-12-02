@@ -33,7 +33,8 @@ class optionRiskFreePortfolio:
         print(CalloptionValue)
 
 
-
+test  = optionRiskFreePortfolio(spotprice = 100,strike =110,upwardMovement=120,downwardMovment=80,timeperiod = 0.25,riskfreerate = 0.10)
+print(test.optionvalue())
 
 
 class PayoffType(Enum):
@@ -45,8 +46,9 @@ class PayoffType(Enum):
 def oneStepBinomial(S, r, u, d, optType, K, T):
     #p = (math.exp(r * T) - d) / (u-d)
     p = (math.exp(r * T) - d) / (u-d)
+    print(p)
+    print(math.exp(-r*T))
+    print(p*max(S*u-K, 0))
     return math.exp(-r*T) * (p*max(S*u-K, 0) + (1-p) * max(S*d-K, 0))
 
-print(oneStepBinomial(S=1700, r=0.10, u=1.20, d=0.80, optType=0, K=110, T=0.25))
-test  = optionRiskFreePortfolio(spotprice = 100,strike =110,upwardMovement=120,downwardMovment=80,timeperiod = 0.25,riskfreerate = 0.10)
-test.optionvalue()
+print(oneStepBinomial(S=100, r=0.10, u=1.20, d=0.80, optType=0, K=110, T=0.25))

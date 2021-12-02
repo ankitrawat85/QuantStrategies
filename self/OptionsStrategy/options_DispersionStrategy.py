@@ -11,7 +11,7 @@ import pandas as pd
 import datetime
 # To calculate Greeks
 import mibian
-
+import scipy
 # For Plotting
 import matplotlib.pyplot as plt
 
@@ -180,6 +180,7 @@ class DispersionStrategy():
         df_f.Date  = pd.to_datetime(df_f.Date)
 
         df_merge = df_.merge(df_f,left_on="Date",right_on="Date")
+        df_merge.to_csv("df_merge.csv")
         banknifty = DispersionStrategy().time_to_expiry(df_merge)
         full_BankNifty_opt = banknifty
         BankNifty_Opt = DispersionStrategy().atm_strike_price(banknifty)
