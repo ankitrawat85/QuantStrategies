@@ -80,10 +80,14 @@ def falsi(f, a, b, tol):
     return c
 
 def testBrent():
-    price = bsPrice(S=100, r=0.02, vol=0.1, T=1.0, strike=90, payoffType=PayoffType.Call)
-    f = lambda vol: (bsPrice(100, 0.02, vol, 1.0, 90, PayoffType.Call) - price)
+    #price = bsPrice(S=100, r=0.02, vol=0.1, T=1.0, strike=90, payoffType=PayoffType.Call)
+    #f = lambda vol: (bsPrice(100, 0.02, vol, 1.0, 90, PayoffType.Call) - price)
+    price = bsPrice(S=721.85, r=0.00, vol=0.1, T=0.158, strike=440, payoffType=PayoffType.Put)
+    print(price)
+    f = lambda vol: (bsPrice(37605.9,0.00, vol,0.246575342,34500, PayoffType.Put) -6370.8)
+
     a, b = 0.0001, 0.5
-    iv = optimize.brentq(f, a, b)
+    iv = optimize.brentq(f, 1e-12, 2)
     print("implied vol = ", iv)
 
 testBrent()

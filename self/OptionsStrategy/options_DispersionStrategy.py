@@ -12,8 +12,13 @@ import datetime
 # To calculate Greeks
 import mibian
 import scipy
+
+
 # For Plotting
 import matplotlib.pyplot as plt
+
+## personal code import
+from self.OptionsStrategy.optionsvaluation.optionpricing import volatility
 
 import warnings
 warnings.simplefilter("ignore")
@@ -24,18 +29,6 @@ class DispersionStrategy():
         pass
 
     def datapulloptions(self):
-        HDFCBANK_Wt = 0.333
-        HDFCBANK_Lot_Size = 500
-        ICICIBANK_Wt = 0.173
-        ICICIBANK_Lot_Size = 2500
-        KOTAKBANK_Wt = 0.123
-        KOTAKBANK_Lot_Size = 800
-        SBIN_Wt = 0.102
-        SBIN_Lot_Size = 3000
-        AXISBANK_Wt = 0.08
-        AXISBANK_Lot_Size = 1200
-        BankNifty_Wt = 1.0
-        BankNifty_Lot_Size = 40
 
         BankNifty_Opt = get_history(symbol="BANKNIFTY",
                                     start=date(2021,11, 1),
@@ -63,12 +56,13 @@ class DispersionStrategy():
 
 
     def time_to_expiry(self,opt):
-        opt.Expiry = pd.to_datetime(opt.Expiry)
-        opt.Date = pd.to_datetime(opt.Date)
-        opt['time_to_expiry'] = (opt.Expiry - opt.Date).dt.days
+        opt['time_diff'] = (opt.Expiry - opt.Date).dt.days / 365
         return opt
 
     def atm_strike_price(self,opt):
+        print("inside ATM")
+        print(opt)
+        print(opt.columns)
         opt['strike_distance'] = np.abs(opt.futures_price - opt['Strike Price'])
         df = opt.groupby(['Date'])['strike_distance'].min().to_frame()
         df.index.column = 0
@@ -91,7 +85,7 @@ class DispersionStrategy():
                                        )].iloc[0]['Date']
             option_type = opt.iloc[i]['Option Type']
 
-            if opt.iloc[i]['time_to_expiry'] != 0:
+            if opt.iloc[i]['time_diff'] != 0:
                 opt.iloc[i, opt.columns.get_loc('next_day_close')] = \
                 full_opt[(full_opt['Strike Price'] == strike_price) &
                          (full_opt['Date'] == next_trading_date) &
@@ -107,22 +101,22 @@ class DispersionStrategy():
         return opt
 
     def implied_volatility_options(self,opt):
-        opt['IV'] = np.nan
+        opt['impliedvolatility'] = np.nan
         #opt = opt.iloc[:3]
-        opt.loc[(opt.time_to_expiry == 0), 'time_to_expiry'] = 0.0000001
+        opt.loc[(opt.time_diff == 0), 'time_diff'] = 0.0000001
         for i in range(0, len(opt)):
             if opt.iloc[i]['Option Type'] == 'CE':
-                opt.iloc[i, opt.columns.get_loc('IV')] = mibian.BS([opt.iloc[i]['futures_price'],
+                opt.iloc[i, opt.columns.get_loc('impliedvolatility')] = mibian.BS([opt.iloc[i]['futures_price'],
                                                                     opt.iloc[i]['Strike Price'],
                                                                     0,
-                                                                    opt.iloc[i]['time_to_expiry']],
+                                                                    opt.iloc[i]['time_diff']],
                                                                    callPrice=opt.iloc[i]['Close']
                                                                    ).impliedVolatility
             else:
-                opt.iloc[i, opt.columns.get_loc('IV')] = mibian.BS([opt.iloc[i]['futures_price'],
+                opt.iloc[i, opt.columns.get_loc('impliedvolatility')] = mibian.BS([opt.iloc[i]['futures_price'],
                                                                     opt.iloc[i]['Strike Price'],
                                                                     0,
-                                                                    opt.iloc[i]['time_to_expiry']],
+                                                                    opt.iloc[i]['time_diff']],
                                                                    putPrice=opt.iloc[i]['Close']
                                                                    ).impliedVolatility
         return opt
@@ -135,25 +129,25 @@ class DispersionStrategy():
                 opt.iloc[i, opt.columns.get_loc('delta')] = mibian.BS([opt.iloc[i]['futures_price'],
                                                                        opt.iloc[i]['Strike Price'],
                                                                        0,
-                                                                       opt.iloc[i]['time_to_expiry']],
-                                                                      volatility=opt.iloc[i]['IV']
+                                                                       opt.iloc[i]['time_diff']],
+                                                                      volatility=opt.iloc[i]['impliedvolatility']
                                                                       ).callDelta
             else:
                 opt.iloc[i, opt.columns.get_loc('delta')] = mibian.BS([opt.iloc[i]['futures_price'],
                                                                        opt.iloc[i]['Strike Price'],
                                                                        0,
-                                                                       opt.iloc[i]['time_to_expiry']],
-                                                                      volatility=opt.iloc[i]['IV']
+                                                                       opt.iloc[i]['time_diff']],
+                                                                      volatility=opt.iloc[i]['impliedvolatility']
                                                                       ).putDelta
         return opt
 
     def implied_dirty_correlation(self,index,const1,const1_wt,const2,const2_wt,const3,const3_wt,const4,const4_wt,const5,const5_wt):
-        index_IV = index.groupby(['Date'])['IV'].mean().to_frame()
-        const1_IV = const1.groupby(['Date'])['IV'].mean().to_frame()
-        const2_IV = const2.groupby(['Date'])['IV'].mean().to_frame()
-        const3_IV = const3.groupby(['Date'])['IV'].mean().to_frame()
-        const4_IV = const4.groupby(['Date'])['IV'].mean().to_frame()
-        const5_IV = const5.groupby(['Date'])['IV'].mean().to_frame()
+        index_IV = index.groupby(['Date'])['impliedvolatility'].mean().to_frame()
+        const1_IV = const1.groupby(['Date'])['impliedvolatility'].mean().to_frame()
+        const2_IV = const2.groupby(['Date'])['impliedvolatility'].mean().to_frame()
+        const3_IV = const3.groupby(['Date'])['impliedvolatility'].mean().to_frame()
+        const4_IV = const4.groupby(['Date'])['impliedvolatility'].mean().to_frame()
+        const5_IV = const5.groupby(['Date'])['impliedvolatility'].mean().to_frame()
 
 
         weighted_average_constituents_vol = const1_IV * const1_wt \
@@ -172,23 +166,33 @@ class DispersionStrategy():
         df_future  = pd.read_csv(future)
         df_future = df_future.rename(columns= {"Close" : "futures_price"})
         df_ = pd.concat([df_optins_ce,df_optins_pe])
-        df_ = df_.sort_values(["Date","Option Type"])
+        #df_ = df_.sort_values(["Date","Option Type"])
         df_.Date  = pd.to_datetime(df_.Date)
+        df_.Expiry = pd.to_datetime(df_.Expiry)
         df_1 = df_[["Date","Expiry","Option Type","Strike Price","Close"]]
         df_1.Date  = pd.to_datetime(df_1.Date)
         df_f = df_future[["Date","futures_price"]]
         df_f.Date  = pd.to_datetime(df_f.Date)
-
         df_merge = df_.merge(df_f,left_on="Date",right_on="Date")
+        #print(df_merge)
         df_merge.to_csv("df_merge.csv")
         banknifty = DispersionStrategy().time_to_expiry(df_merge)
         full_BankNifty_opt = banknifty
-        BankNifty_Opt = DispersionStrategy().atm_strike_price(banknifty)
-        BankNifty_Opt = DispersionStrategy().daily_pnl(BankNifty_Opt, full_BankNifty_opt)
-        BankNifty_Opt = DispersionStrategy().implied_volatility_options(BankNifty_Opt)
+        print("Initial Setup -->")
+        #rint(banknifty)
+        BankNifty_Opt = volatility("SABR", banknifty)
+        print("SABR volatility ----> ")
+        print(BankNifty_Opt)
 
-        ## Delta
         BankNifty_Opt = DispersionStrategy().delta_options(BankNifty_Opt)
+        BankNifty_Opt = DispersionStrategy().atm_strike_price(BankNifty_Opt)
+        print("*****************************************************")
+        BankNifty_Opt = DispersionStrategy().daily_pnl(BankNifty_Opt, full_BankNifty_opt)
+        print("****************************()()()()()**************************")
+        #BankNifty_Opt = DispersionStrategy().implied_volatility_options(BankNifty_Opt)
+        ## Delta
+        #BankNifty_Opt = DispersionStrategy().delta_options(BankNifty_Opt)
+
         return BankNifty_Opt
 
     def trading_signal(self,df,expiry_df):
@@ -232,21 +236,34 @@ class DispersionStrategy():
                        right_index=True, how='left')
         opt['strategy_pnl'] = opt.positions * opt.daily_straddle_pnl
         return opt
-
+print ("Index started ->")
 df_index = DispersionStrategy().process("OPTIDX_BANKNIFTY_CE.csv","OPTIDX_BANKNIFTY_PE.csv","index_future.csv")
+print ("HDFC started ->")
 df_hdfc = DispersionStrategy().process("OPTSTK_HDFCBANK_CE.csv","OPTSTK_HDFCBANK_PE.csv","HDFCBANK_future.csv")
+print ("kotak started ->")
 df_kotak = DispersionStrategy().process("OPTSTK_KOTAKBANK_CE.csv","OPTSTK_KOTAKBANK_PE.csv","FUTSTK_KOTAKBANK.csv")
+print ("axis started ->")
 df_axis = DispersionStrategy().process("OPTSTK_AXISBANK_CE.csv","OPTSTK_AXISBANK_PE.csv","FUTSTK_AXISBANK.csv")
+print ("SBIN started ->")
 df_sbin = DispersionStrategy().process("OPTSTK_SBIN_CE.csv","OPTSTK_SBIN_PE.csv","FUTSTK_SBIN.csv")
+print ("ICICI started ->")
 df_icici = DispersionStrategy().process("OPTSTK_ICICIBANK_CE.csv","OPTSTK_ICICIBANK_PE.csv","ICICIBANK_future.csv")
 
+print("Corelation---->")
+print(df_index.head(2))
+print(df_hdfc.head(2))
+print(df_icici.head(2))
+print(df_kotak.head(2))
+print(df_sbin.head(2))
+print(df_axis.head(2))
 
 df_corr = DispersionStrategy().implied_dirty_correlation(df_index,df_hdfc,0.333,df_icici,0.173,df_kotak,0.123,df_sbin,0.102,df_axis,0.08)
-df_corr = df_corr.rename(columns={'IV': 'implied_correlation'})
+
+df_corr = df_corr.rename(columns={'impliedvolatility': 'implied_correlation'})
 df_corr.plot()
 plt.grid()
 plt.show()
-
+print("Trading Signal .......generation")
 df_trading_signal = DispersionStrategy().trading_signal(df_corr,df_hdfc)
 df_trading_signal.to_csv("df_trading_signal.csv")
 print(df_trading_signal)
@@ -271,6 +288,7 @@ axis_Ret = df_axis.groupby(['Date'])['strategy_pnl'].sum().to_frame()
 SBIN_Ret = df_sbin.groupby(['Date'])['strategy_pnl'].sum().to_frame()
 icici_Ret = df_icici.groupby(['Date'])['strategy_pnl'].sum().to_frame()
 index_Ret.tail()
+print ("Weightage .....")
 
 def weightage_strategy_pnl():
     HDFCBANK_Wt = 0.333
@@ -285,9 +303,7 @@ def weightage_strategy_pnl():
     AXISBANK_Lot_Size = 1200
     BankNifty_Wt = 1.0
     BankNifty_Lot_Size = 40
-
     ###
-
     strategy_pnl = HDFCBANK_Ret.strategy_pnl * HDFCBANK_Lot_Size * HDFCBANK_Wt + \
         SBIN_Ret.strategy_pnl * SBIN_Lot_Size * SBIN_Wt + \
         axis_Ret.strategy_pnl * AXISBANK_Lot_Size * AXISBANK_Wt + \
@@ -295,7 +311,7 @@ def weightage_strategy_pnl():
         icici_Ret.strategy_pnl * ICICIBANK_Lot_Size * ICICIBANK_Wt + \
         index_Ret.strategy_pnl * BankNifty_Lot_Size * BankNifty_Wt
     return strategy_pnl.cumsum().shift(1)
-
+print("Plot generation....")
 weightage_strategy_pnl().plot(figsize=(10, 5))
 plt.ylabel("Strategy PnL")
 plt.show()
