@@ -163,6 +163,7 @@ class Portfolio:
                         self.df_["Stock_BUY_Sell"].iat[self.row+1] = trading_signal
                     elif (np.sign(np.sum(self.df_["Stock_BUY_Sell"])) < 0):
                         self.df_["Stock_BUY_Sell"].iat[self.row + 1] = -(np.sum(self.df_["Stock_BUY_Sell"])+self.maxstocks)
+
                     else:
                         self.df_["Stock_BUY_Sell"].iat[self.row + 1] = -(self.maxstocks - np.sum(self.df_["Stock_BUY_Sell"]))
 
@@ -225,13 +226,13 @@ class Portfolio:
 
         print ("Moving Average Strategy calcualtion Completed")
 if __name__ == "__main__":
-    strat1 = Portfolio(file="infy.csv",T1= 10,T2=30, field="Close",returnshift= 1,totalcash=10000000,delta=0.02,maxstocks =30)
-    strat2 = Portfolio(file="infy.csv", T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000, delta=0.02,
+    strat1 = Portfolio(file="SPY.csv",T1= 10,T2=30, field="Close",returnshift= 1,totalcash=10000000,delta=0.02,maxstocks =30)
+    strat2 = Portfolio(file="SPY.csv", T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000, delta=0.02,
                       maxstocks=1000)
-    strat3 = Portfolio(file="infy.csv", T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000, delta=0.02,
+    strat3 = Portfolio(file="SPY.csv", T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000, delta=0.02,
                       maxstocks=20)
-    #strat1.mastrategy()
+    strat1.mastrategy()
     strat2.mastrategy()
-    #strat3.mastrategy()
+    strat3.mastrategy()
 
 ## Completed
