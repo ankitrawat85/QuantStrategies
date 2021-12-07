@@ -27,7 +27,7 @@ class PnLCalculator:
         new_cost = self.cost + qty_opening * exec_price
         if self.quantity != 0:
             new_cost += qty_closing * self.cost / self.quantity
-            print(qty_closing)
+            #print(qty_closing)
             self.r_pnl += qty_closing * (self.cost / self.quantity - exec_price)
         self.quantity = n_pos
         self.cost = new_cost
@@ -156,7 +156,7 @@ class Portfolio:
             #print ("Sing ------->")
             #print(np.sign(np.sum(self.df_["Stock_BUY_Sell"])))
             if (trading_signal == 1):
-                if (liquidatePosition == 1):
+                if (liquidatePosition == 1):  # Dont liquidate
                     ## buy share
                     if (self.maxstocks - abs(np.sum(self.df_["Stock_BUY_Sell"])) > trading_signal):
                         assert self.totalCash > self.CurrentOpenPrice * 100, " Short of Cash Balance hence can't buy shares"
@@ -227,12 +227,12 @@ class Portfolio:
         print ("Moving Average Strategy calcualtion Completed")
 if __name__ == "__main__":
     strat1 = Portfolio(file="SPY.csv",T1= 10,T2=30, field="Close",returnshift= 1,totalcash=10000000,delta=0.02,maxstocks =30)
-    strat2 = Portfolio(file="SPY.csv", T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000, delta=0.02,
-                      maxstocks=1000)
-    strat3 = Portfolio(file="SPY.csv", T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000, delta=0.02,
-                      maxstocks=20)
+    #strat2 = Portfolio(file="SPY.csv", T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000, delta=0.02,
+                  #    maxstocks=1000)
+    #strat3 = Portfolio(file="SPY.csv", T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000, delta=0.02,
+                   #   maxstocks=20)
     strat1.mastrategy()
-    strat2.mastrategy()
-    strat3.mastrategy()
+    #strat2.mastrategy()
+    #strat3.mastrategy()
 
 ## Completed
