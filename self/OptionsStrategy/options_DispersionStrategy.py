@@ -1,3 +1,19 @@
+'''
+Dispersion Dtrategy :
+1. Buy the index straddle and sell the index constituents staddle when implied correlation is low
+2. sell the index straddle and buy the index consitituesnts when the implied correlation is high
+3. exit the positions when implied correlation reverts to the mean
+
+Signals are generated when the implied is greater than half standard deviation from the mean or when less then half standard deviation from the mean
+1. When implied correlation is high, the index implied volatility is higher than that of the constituents implied volatility
+and we want to establish short volatility on the index and simultaneously assume a long volatility position on the constituesnts .
+
++1 for long on index straddle and short on index consistuents straddle
+-1 for vice versa
+0 is stored to exit the positions
+
+'''
+
 # Import datetime
 from datetime import date
 # Import datetime
@@ -296,7 +312,10 @@ class DispersionStrategy():
         df = df.fillna(method='ffill')
 
         df['positions'] = df.positions_long + df.positions_short
-
+        print ("Moving Averagen")
+        print(df)
+        df[["moving_average","Open"]].plot()
+        plt.show()
         return df
 
     def strategy_pnl(self,opt, df):
