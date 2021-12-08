@@ -74,12 +74,23 @@ class DispersionStrategy():
     def daily_pnl(self,opt, full_opt):
         opt['next_day_close'] = np.nan
         opt.sort_values('Date', inplace=True, ascending=True)
+        print("inside PNL ")
+        print(opt)
+        opt.to_csv("pnl1.csv")
         for i in range(0, len(opt) - 2):
+            print(i)
             strike_price = opt.iloc[i]['Strike Price']
             trade_date = opt.iloc[i]['Date']
-            next_trading_date = opt[(opt.Date > trade_date)
-                                    & (opt.Date <= trade_date + datetime.timedelta(days=20)
-                                       )].iloc[0]['Date']
+            print(trade_date)
+            print(opt[(opt.Date > trade_date)])
+            print("out")
+            try:
+                next_trading_date = opt[(opt.Date > trade_date)
+                                        & (opt.Date <= trade_date + datetime.timedelta(days=20)
+                                           )].iloc[0]['Date']
+                print(next_trading_date)
+            except:
+                pass
             option_type = opt.iloc[i]['Option Type']
 
             if opt.iloc[i]['time_diff'] != 0:
@@ -312,7 +323,21 @@ class DispersionStrategy():
         return opt
 
 data_  = pd.read_csv("futuredatamerge.csv")
+print(data_.columns)
+data_.rename(columns = {"Future_Prices":"futures_price"}, inplace = True )
+print ("Processing  started ->")
+df_sbin = DispersionStrategy().process(data_[data_["Symbol"] =="SBIN"])
+df_index = DispersionStrategy().process(data_[data_["Symbol"] =="BANKNIFTY"])
+df_hdfc = DispersionStrategy().process(data_[data_["Symbol"] =="HDFCBANK"])
+df_icici = DispersionStrategy().process(data_[data_["Symbol"] =="ICICIBANK"])
+df_axis = DispersionStrategy().process(data_[data_["Symbol"] =="AXISBANK"])
+print(data_[data_["Symbol"] =="SBIN"])
+df_sbin = DispersionStrategy().process(data_[data_["Symbol"] =="SBIN"])
+print(data_[data_["Symbol"] =="AXISBANK"])
+df_kotak = DispersionStrategy().process(data_[data_["Symbol"] =="AXISBANK"])
 
+
+'''  
 print ("Index started ->")
 df_index = DispersionStrategy().process("OPTIDX_BANKNIFTY_CE.csv","OPTIDX_BANKNIFTY_PE.csv","index_future.csv")
 print(df_index.head(2))
@@ -333,8 +358,10 @@ print ("ICICI started ->")
 df_icici = DispersionStrategy().process("OPTSTK_ICICIBANK_CE.csv","OPTSTK_ICICIBANK_PE.csv","ICICIBANK_future.csv")
 print(df_icici.head(2))
 
+'''
+
 print("Corelation---->")
-df_corr = DispersionStrategy().implied_dirty_correlation(df_index,df_hdfc,0.333,df_icici,0.173,df_kotak,0.123,df_sbin,0.102,df_axis,0.08)
+df_corr = DispersionStrategy().implied_dirty_correlation(df_index,df_hdfc,0.333,df_kotak,0.173,df_kotak,0.123,df_sbin,0.102,df_icici,0.08)
 print("corr->")
 print(df_corr)
 df_corr = df_corr.rename(columns={'impliedvolatility': 'implied_correlation'})
