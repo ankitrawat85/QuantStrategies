@@ -1,3 +1,26 @@
+'''
+
+Signals are generated when the implied correlation is greater than half standard deviation from the mean or when it is less than half standard deviation from the mean. When the implied correlation is high, the index implied volatility is higher than that of the constituents implied volatility and we want to establish a short volatility position on the index and simultaneously assume a long volatility position on the constituents. Likewise, when the correlation is low, the index volatility is at a discount to the constituents, thus we want to establish a long volatility position on the index and assume a short volatility position on the constituents.
+We will store:
+'+1' for long on index straddle and short on index constituents straddle
+Vice-versa, '-1' for short on index straddle and long on index constituents straddle
+'0' is stored to exit the positions in index and index constituents
+
+Methodology
+Let's take a step back and think for a moment what data is required and what will actually happen when we establish a position.
+Data Required:
+ATM strike price and implied volatility of the BankNifty index
+The bank stocks which comprise of at least 80% of the BankNifty index
+ATM strike price and implied volatility of the selected index constituents
+Weighted implied volatility of the selected index constituents
+Dirty correlation
+Working of the Mean Reversion Strategy:
+Buy the index straddle and sell the index constituents’ straddle when the implied correlation is low
+Sell the index straddle and buy the index constituents’ straddle when the implied correlation is high
+Exit the positions when the implied correlation reverts to the mean
+
+'''
+
 # Import datetime
 from datetime import date
 # Import datetime
