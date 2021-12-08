@@ -33,7 +33,7 @@ from datetime import datetime
 
 '''
 from datetime import datetime
-'''
+
 now = datetime.now() # current date and time
 
 year = now.strftime("%Y")
@@ -57,7 +57,7 @@ for k in np.arange(dt.date(2021,9,1),dt.date(2021,12,7)) :
         print(_date)
         df_ = nse.bhavcopy_fno(_date)
         df_ = pd.DataFrame(df_).reset_index()
-        Y = ["AXISBANK", "BANKNIFTY", "HDFCBANK", "ICICIBANK", "SBIN"]
+        Y = ["AXISBANK", "BANKNIFTY", "HDFCBANK", "ICICIBANK", "SBIN","KOTAKBANK"]
         df_ = df_[df_["SYMBOL"].isin(Y)]
         expiry_dates = df_[df_["SYMBOL"] == "AXISBANK"].EXPIRY_DT.unique()
         expiry_date = [str(i).split("T")[0] for i in expiry_dates]
@@ -69,7 +69,8 @@ for k in np.arange(dt.date(2021,9,1),dt.date(2021,12,7)) :
         print(date)
 
 print("Finish...")
-'''
+data_.to_csv("consolidted.csv")
+
 df_ = pd.read_csv("consolidted.csv")
 
 df_ = df_[["SYMBOL","INSTRUMENT","EXPIRY_DT","STRIKE_PR","OPTION_TYP","OPEN",
