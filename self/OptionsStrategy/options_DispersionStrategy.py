@@ -1,19 +1,3 @@
-'''
-Dispersion Dtrategy :
-1. Buy the index straddle and sell the index constituents staddle when implied correlation is low
-2. sell the index straddle and buy the index consitituesnts when the implied correlation is high
-3. exit the positions when implied correlation reverts to the mean
-
-Signals are generated when the implied is greater than half standard deviation from the mean or when less then half standard deviation from the mean
-1. When implied correlation is high, the index implied volatility is higher than that of the constituents implied volatility
-and we want to establish short volatility on the index and simultaneously assume a long volatility position on the constituesnts .
-
-+1 for long on index straddle and short on index consistuents straddle
--1 for vice versa
-0 is stored to exit the positions
-
-'''
-
 # Import datetime
 from datetime import date
 # Import datetime
@@ -136,6 +120,7 @@ class DispersionStrategy():
 
     def delta_options(self,opt):
         opt['delta'] = np.nan
+
         #opt = opt.iloc[:3]
         for i in range(0, len(opt)):
             if opt.iloc[i]['Option Type'] == 'CE':
@@ -239,8 +224,9 @@ class DispersionStrategy():
         return (index_IV / weighted_average_constituents_vol) ** 2
 
 ##  Data formating from csv
-    def process(self,ce,pe,future):
-        df_optins_ce  = pd.read_csv(ce)
+    def process(self,df_merge):
+    #def process(self,ce,pe,future):
+        '''df_optins_ce  = pd.read_csv(ce)
         df_optins_pe  = pd.read_csv(pe)
         df_future  = pd.read_csv(future)
         df_future = df_future.rename(columns= {"Close" : "futures_price"})
@@ -254,7 +240,10 @@ class DispersionStrategy():
         df_f.Date  = pd.to_datetime(df_f.Date)
         df_merge = df_.merge(df_f,left_on="Date",right_on="Date")
         #print(df_merge)
-        df_merge.to_csv("df_merge.csv")
+        df_merge.to_csv("df_merge.csv")'''
+
+        df_merge.Date = pd.to_datetime(df_merge.Date)
+        df_merge.Expiry = pd.to_datetime(df_merge.Expiry)
         banknifty = DispersionStrategy().time_to_expiry(df_merge)
         full_BankNifty_opt = banknifty
         print("Initial Setup -->")
@@ -281,7 +270,7 @@ class DispersionStrategy():
 
     def trading_signal(self,df,expiry_df):
         df.index.column = 0
-        lookback = 5
+        lookback = 10
         # Moving Average
         df['moving_average'] = df['implied_correlation'].rolling(lookback).mean()
         # Moving Standard Deviation
@@ -312,9 +301,7 @@ class DispersionStrategy():
         df = df.fillna(method='ffill')
 
         df['positions'] = df.positions_long + df.positions_short
-        print ("Moving Averagen")
-        print(df)
-        df[["moving_average","Open"]].plot()
+        df[["moving_average","implied_correlation"]].plot()
         plt.show()
         return df
 
@@ -323,6 +310,9 @@ class DispersionStrategy():
                        right_index=True, how='left')
         opt['strategy_pnl'] = opt.positions * opt.daily_straddle_pnl
         return opt
+
+data_  = pd.read_csv("futuredatamerge.csv")
+
 print ("Index started ->")
 df_index = DispersionStrategy().process("OPTIDX_BANKNIFTY_CE.csv","OPTIDX_BANKNIFTY_PE.csv","index_future.csv")
 print(df_index.head(2))
@@ -351,24 +341,16 @@ df_corr = df_corr.rename(columns={'impliedvolatility': 'implied_correlation'})
 df_corr.plot()
 plt.grid()
 plt.show()
-df_corr.to_csv("df_corr.csv")
 print("Trading Signal .......generation")
 df_trading_signal = DispersionStrategy().trading_signal(df_corr,df_hdfc)
-df_trading_signal.to_csv("df_trading_signal.csv")
-print(df_trading_signal)
-
-
-
 df_index = DispersionStrategy().strategy_pnl(df_index, df_trading_signal)
-print(df_index.head(10))
 df_trading_signal.positions *= -1
+df_trading_signal.to_csv("df_trading_signal.csv")
 df_hdfc = DispersionStrategy().strategy_pnl(df_hdfc, df_trading_signal)
 df_kotak = DispersionStrategy().strategy_pnl(df_kotak, df_trading_signal)
 df_axis = DispersionStrategy().strategy_pnl(df_axis, df_trading_signal)
 df_sbin = DispersionStrategy().strategy_pnl(df_sbin, df_trading_signal)
 df_icici = DispersionStrategy().strategy_pnl(df_icici, df_trading_signal)
-
-
 
 index_Ret = df_index.groupby(['Date'])['strategy_pnl'].sum().to_frame()
 HDFCBANK_Ret = df_hdfc.groupby(['Date'])['strategy_pnl'].sum().to_frame()
@@ -401,7 +383,9 @@ def weightage_strategy_pnl():
         index_Ret.strategy_pnl * BankNifty_Lot_Size * BankNifty_Wt
 
     print(strategy_pnl.to_csv("final_PNL.csv"))
+    print(strategy_pnl)
     return strategy_pnl.cumsum().shift(1)
+
 print("Plot generation....")
 weightage_strategy_pnl().plot(figsize=(10, 5))
 plt.ylabel("Strategy PnL")
