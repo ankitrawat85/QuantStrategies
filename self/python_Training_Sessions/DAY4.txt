@@ -1,0 +1,77 @@
+D:\handson>python
+Python 3.7.6 (tags/v3.7.6:43364a7ae0, Dec 19 2019, 00:42:30) [MSC v.1916 64 bi
+t (AMD64)] on win32
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import requests
+>>> from bs4 import BeautifulSoup
+>>> r = requests.get("http://localhost:5000/")
+>>> r.status_code
+200
+>>> s = BeautifulSoup(r.text, 'html.parser')
+>>> type(s)
+<class 'bs4.BeautifulSoup'>
+>>> s.get_text()
+'\n My Webserver\n\n    .some {\n        color: red;\n    }\n    \n\nHello the
+re!!\nHello Again!!\n\n'
+>>> hs = s.select('.some')
+>>> #.some means class="some"
+>>> #https://www.w3schools.com/cssref/css_selectors.asp
+>>> for h in hs:
+...     print(h.text, h.name, h.attrs)
+...
+Hello there!! h1 {'id': 'some', 'class': ['some']}
+Hello Again!! h1 {'id': 'some2', 'class': ['some']}
+>>> #selenium - to handle dynamic content
+>>> quit()
+
+D:\handson>python
+Python 3.7.6 (tags/v3.7.6:43364a7ae0, Dec 19 2019, 00:42:30) [MSC v.1916 64 bi
+t (AMD64)] on win32
+Type "help", "copyright", "credits" or "license" for more information.
+>>> url1 = "http://localhost:5000/helloj?name=das&format=json"
+>>> url2 = "http://localhost:5000/helloj/das/json"
+>>> url3 = "http://localhost:5000/helloj/das/xml"
+>>> url4 = "http://localhost:5000/helloj/dasss/json"
+>>> import requests
+>>> r1 = requests.get(url1)
+>>> r1.json()
+{'age': 40, 'name': 'das'}
+>>>
+>>> r2 = requests.get(url2)
+>>> r2.json()
+{'age': 40, 'name': 'das'}
+>>>
+>>> r4 = requests.get(url4)
+>>> r4.json()
+{'details': 'Not found', 'name': 'dasss'}
+>>> #XML
+>>> r3 = requests.get(url3)
+>>> import xml.etree.ElementTree as ET
+>>> root = ET.fromstring(r3.text)
+>>> print(root)
+<Element 'data' at 0x0000006375CEDD18>
+>>>
+>>> url_post = "http://localhost:5000/helloj"
+>>> headers = {'Content-Type': 'application/json'}
+>>> import json
+>>> obj = dict(name="das")
+>>> url_r = requests.post(url_post, data=josn.dumps(obj), headers=headers)
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+NameError: name 'josn' is not defined
+>>> url_post = "http://localhost:5000/helloj"
+>>> headers = {'Content-Type': 'application/json'}
+>>> import json
+>>> obj = dict(name="das")
+>>> url_r = requests.post(url_post, data=json.dumps(obj), headers=headers)
+>>> url_r.json()
+{'age': 40, 'name': 'das'}
+>>> quit()
+
+D:\handson>
+
+
+
+
+
+

@@ -1,0 +1,95 @@
+STEP1: CREATE below 
+mkdir packaging 
+cd  packaging
+mkdir flaskr
+echo > flaskr\__init__.py
+move  ..\quick_server.py flaskr\
+move   ..\templates flaskr
+move   ..\static flaskr
+echo > setup.py 
+echo > MANIFEST.in
+
+STEP2: UPDATE
+#__init__.py
+from flask import Flask
+app = Flask(__name__)
+from . import quick_server
+#Update quick_server.py
+from flask import Flask 
+#app = Flask(__name__)
+from flaskr import app
+#setup.py
+from setuptools import find_packages, setup
+setup(
+    name='flaskr',
+    version='1.0.0',
+    #Please keep in mind that you have to list subpackages explicitly. 
+    #If you want setuptools to lookup the packages for you automatically
+    #which py pkg to package, based on current dir 
+    packages=find_packages(),
+    include_package_data=True,  # checks  MANIFEST.in
+    zip_safe=False, #setuptools to install your project as a directory rather than as a zipfile
+    install_requires=[
+        'flask',
+    ],
+)
+#MANIFEST.in
+graft flaskr/templates
+global-exclude *.pyc
+graft flaskr/static
+
+------------Further help:
+Note include any other directory by 
+graft flaskr/static
+
+Include any file 
+include flaskr/example.json
+
+
+$ pip install wheel
+$ python setup.py bdist_wheel
+#You can find the file in dist/flaskr-1.0.0-py3-none-any.whl
+
+STEP3: Take this file to any machine 
+Get the ip of the machine by 'ipconfig', Note it down as HOST_IP 
+
+
+Install 
+$ pip install --force-reinstall --no-dependencies dist/flaskr-1.0.0-py3-none-any.whl
+
+STEP4:
+##Deployement
+#https://flask.palletsprojects.com/en/1.1.x/deploying/wsgi-standalone/
+
+# For example to deploy via  Gevent 
+pip install gevent 
+#Gevent is a coroutine-based Python networking library 
+#that uses greenlet to provide a high-level synchronous API on top of libev event loop:
+
+
+#gevent_server.py
+from gevent.pywsgi import WSGIServer
+from flaskr import app
+
+# http_server = WSGIServer(('localhost', 443), app, keyfile='key.pem', certfile='cert.pem')
+http_server = WSGIServer(('localhost', 80), app)
+http_server.serve_forever()
+
+##To generate self signed certificate 
+Note cert.pem may have public ip or localhost 
+But whatever it has , must be the same as given in above 'http_server'
+
+import requests
+r = requests.get("https://localhost/helloj?name=das&format=json", verify=False)
+r = requests.get("https://localhost/helloj?name=das&format=json", verify="./cert.pem")
+
+#Create - instead of localhost, gives public IP 
+#-nodes (short for no DES) for no  passphrase(else min 4 character passphrase) 
+(check by 'where openssl.exe' ) 
+$ openssl req -x509 -subj '/CN=localhost' -nodes -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365
+
+
+Note for subjectAltName error
+Check 
+https://gist.github.com/KeithYeh/bb07cadd23645a6a62509b1ec8986bbc
+https://serverfault.com/questions/845766/generating-a-self-signed-cert-with-openssl-that-works-in-chrome-58
