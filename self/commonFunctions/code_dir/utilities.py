@@ -53,6 +53,13 @@ def main():
     import random
     import warnings
     import matplotlib.pyplot as plt
+    import numpy as np
+    import matplotlib.pyplot as plt
+    from financepy.finutils import *
+    from financepy.market.curves import *
+    from financepy.products.equity import *
+
+
 if __name__ == "__main__":
     import os
     root_DIR = os.path.dirname(os.path.abspath(__file__))
