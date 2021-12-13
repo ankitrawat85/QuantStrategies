@@ -95,6 +95,7 @@ class DispersionStrategy():
         return opt
 
     def implied_volatility_options(self,opt):
+        print("inside implied vol")
         opt['impliedvolatility'] = np.nan
         #opt = opt.iloc[:3]
         opt.loc[(opt.time_diff == 0), 'time_diff'] = 0.0000001
@@ -311,7 +312,7 @@ class DispersionStrategy():
         return strategy_pnl.cumsum().shift(1)
 
 if __name__ == "__main__":
-    data_  = pd.read_csv("futuredatamerge.csv")
+    data_  = pd.read_csv("futuredatamerge1.csv")
     data_.rename(columns = {"Future_Prices":"futures_price"}, inplace = True )
     print ("1. Processing  started ->")
     df_index = DispersionStrategy().process(data_[data_["Symbol"] =="BANKNIFTY"])

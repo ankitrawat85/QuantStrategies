@@ -47,7 +47,7 @@ print("day:", day)
 
 time = now.strftime("%H:%M:%S")
 data_ = pd.DataFrame()
-for k in np.arange(dt.date(2021,9,1),dt.date(2021,12,10)) :
+for k in np.arange(dt.date(2021,9,1),dt.date(2021,12,12)) :
     k = pd.to_datetime(k)
     year = k.strftime("%Y")
     month = k.strftime("%m")
@@ -121,6 +121,6 @@ futuredatamerge_ = futuredatamerge_[["SYMBOL","INSTRUMENT","EXPIRY_DT","STRIKE_P
 futuredatamerge_ = futuredatamerge_.drop_duplicates(keep = 'first')
 futuredatamerge_ = futuredatamerge_.dropna()
 futuredatamerge_.to_csv("futuredatamerge.csv")
-futuredatamerge_ = futuredatamerge_.rename(columns = {"SYMBOL" : "Symbol","TIMESTAMP" : "Date","EXPIRY_DT":"Expiry","OPTION_TYP":"Option Type","STRIKE_PR":"Strike Price","OPEN":"Open","HIGH":"High","LOW":"Low","CLOSE":"Close"})
+futuredatamerge_ = futuredatamerge_.rename(columns = {"Future_Prices":"futures_price","SYMBOL" : "Symbol","TIMESTAMP" : "Date","EXPIRY_DT":"Expiry","OPTION_TYP":"Option Type","STRIKE_PR":"Strike Price","OPEN":"Open","HIGH":"High","LOW":"Low","CLOSE":"Close"})
 futuredatamerge_.to_csv("futuredatamerge.csv")
 print(futuredatamerge_.columns)
