@@ -15,7 +15,6 @@ import talib
 
 import numpy as np
 from candle_rankings import candle_rankings
-import talib
 from itertools import compress
 
 

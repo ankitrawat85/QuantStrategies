@@ -8,7 +8,11 @@ import pandas as pd
 import logging
 import numpy as np
 import matplotlib.pyplot as plt
-
+import pandas as pd
+import numpy as np
+desired_width=320
+pd.set_option('display.width', desired_width)
+pd.set_option('display.max_columns',20)
 
 class PnLCalculator:
     def __init__(self):
@@ -61,29 +65,23 @@ class MvAverageStrategy:
         ##  Assumption_1, no gap opening on closing price and next day opening price.
         Tradingsignal = 0
         liquidatePosition = 0
-        #print("signal")
-        #print(mv_t1, mv_t2, previousClosingPrice, currentPrice, delta)
         if (mv_t1 > mv_t2):
-            #print ( "mv_t1 {} > mv_t1 {}".format(mv_t1,mv_t2))
             deltacal = (1 - delta) * float(previousClosingPrice)
             if (currentPrice > (1 - delta) * float(previousClosingPrice)):
-                #print(" currentPrice  {} >  {} delta".format(currentPrice, deltacal))
                 Tradingsignal = 1
-                liquidatePosition = 1 # Don't Liquidate postion
+                liquidatePosition = 1 # Don't Liquidate position
 
                 return Tradingsignal, liquidatePosition,deltacal
             else:
-                #print("currentPrice  {} < {} (1 - delta) * (previousClosingPrice)".format(currentPrice, (1 - delta) * previousClosingPrice))
                 Tradingsignal = 1
                 liquidatePosition = -1 # Liquidate postion
                 return Tradingsignal, liquidatePosition, deltacal
 
         elif (mv_t1 < mv_t2):
-            #print("mv_t1 {} < mv_t1 {}".format(mv_t1, mv_t2))
+
             deltacal = (1 + delta) * float(previousClosingPrice)
-            #print(currentPrice,previousClosingPrice,deltacal)
+
             if (currentPrice < (1 + delta) * previousClosingPrice) :
-                #print("currentPrice  {} <  {} (1 + delta) * (previousClosingPrice)".format(currentPrice, (1 + delta) * previousClosingPrice))
                 Tradingsignal = -1
                 liquidatePosition = 1 # Don't Liquidate postion
                 return Tradingsignal, liquidatePosition,deltacal
@@ -95,8 +93,9 @@ class MvAverageStrategy:
 
 
 class Portfolio:
-    def __init__(self, file, T1: int, T2: int, field: str, returnshift=1,totalcash = 100000,delta =0.02,maxstocks: int = 10):
-        self.df_ = pd.read_csv(file, index_col="Date", infer_datetime_format=True)
+    def __init__(self, file, T1: int, T2: int, field: str,returnshift,SellMaxPercentChange,SellpriceChangeBarrier,BuyMaxPercentChange,BuypriceChangeBarrier,maxstocks:int,qtylot:int = 50 ,totalcash = 100000,delta =0.02,):
+        self.df_ = pd.read_csv(file, index_col="Date")
+        self.df_.index = pd.to_datetime(self.df_.index)
         self.list_columns = ["Date", "Open", "High", "Low", "Close", "Adj Close", "Volume"]
         self.T1 = T1
         self.T2 = T2
@@ -113,10 +112,15 @@ class Portfolio:
         self.CurrentOpenPrice = self.df_.iloc[self.T2].Open
         self.delta = delta
         self.maxstocks = maxstocks
+
         self.portfolio = pd.DataFrame(np.zeros([1, 4]), columns=["transactionprice", "Quantity", "PNL", "MTM"])
+        self.qtylot = qtylot
+        self.BuypriceChangeBarrier = BuypriceChangeBarrier
+        self.SellpriceChangeBarrier = SellpriceChangeBarrier
+        self.BuyMaxPercentChange = BuyMaxPercentChange
+        self.SellMaxPercentChange = SellMaxPercentChange
 
     def mastrategy(self):
-        print("Moving Average Strategy calcualtion Started")
         ## Data Columns Validations
         MvAverageStrategy().fieldvalidations(self.df_,self.list_columns)
         logging.info("Field Validation Completed")
@@ -132,11 +136,11 @@ class Portfolio:
         self.df_["deltacal"] = np.NAN
         self.df_["Stock_BUY_Sell"] = np.NAN
 
+        self.tradingPrice = np.NAN
+
         while self.row+1 < len(self.df_):
-            #print(self.row+1)
             self.df_['mvAverageStrategy_T1'].iat[self.row+1] = MvAverageStrategy().sma(self.df_.iloc[:self.row]["Daily_Log_Return"], self.T1)
             self.df_['mvAverageStrategy_T2'].iat[self.row+1] = MvAverageStrategy().sma(self.df_.iloc[:self.row]["Daily_Log_Return"], self.T2)
-            #print("Validate")
             self.CurrentOpenPrice = self.df_.iloc[self.row].Open
 
             ## Trading Signal
@@ -150,54 +154,80 @@ class Portfolio:
             self.df_["trading_signal"].iat[self.row+1] = trading_signal
             self.df_["liquidatePosition"].iat[self.row + 1] = liquidatePosition
             self.df_["deltacal"].iat[self.row + 1] = deltacal
-            #print("Trading Signal {} and LiquidatePostion {}".format(trading_signal,liquidatePosition))
-            #liquidatePosition = 1 # Don't Liquidate postion
 
-            #print ("Sing ------->")
-            #print(np.sign(np.sum(self.df_["Stock_BUY_Sell"])))
             if (trading_signal == 1):
+
+                #print(abs(np.sum(self.df_["Stock_BUY_Sell"])))
                 if (liquidatePosition == 1):  # Dont liquidate
                     ## buy share
-                    if (self.maxstocks - abs(np.sum(self.df_["Stock_BUY_Sell"])) > trading_signal):
-                        assert self.totalCash > self.CurrentOpenPrice * 100, " Short of Cash Balance hence can't buy shares"
-                        self.df_["Stock_BUY_Sell"].iat[self.row+1] = trading_signal
-                    elif (np.sign(np.sum(self.df_["Stock_BUY_Sell"])) < 0):
-                        self.df_["Stock_BUY_Sell"].iat[self.row + 1] = -(np.sum(self.df_["Stock_BUY_Sell"])+self.maxstocks)
 
-                    else:
-                        self.df_["Stock_BUY_Sell"].iat[self.row + 1] = -(self.maxstocks - np.sum(self.df_["Stock_BUY_Sell"]))
+                   # print(self.maxstocks,(np.sum(self.df_["Stock_BUY_Sell"])),trading_signal)
+                    if (np.sign(np.sum(self.df_["Stock_BUY_Sell"])) > 0 ):
 
-                else:
-                    if np.sum(self.df_["Stock_BUY_Sell"].iloc[:self.row]) > 0:
-                        self.df_["Stock_BUY_Sell"].iat[self.row + 1] = np.sum(self.df_["Stock_BUY_Sell"].iloc[:self.row+1]) * liquidatePosition
-                    else:
-                        self.df_["Stock_BUY_Sell"].iat[self.row + 1] = 0
+                        if ((self.df_["Close"].iloc[self.row + 1] - self.tradingPrice) / self.tradingPrice) < ( self.BuypriceChangeBarrier):
+                           # print("Condition Met ")
+                            self.df_["Stock_BUY_Sell"].iat[self.row + 1] = -np.sum(self.df_["Stock_BUY_Sell"])
 
-            else:
-                if trading_signal == -1:                         ## Sell share
-                    if (liquidatePosition == 1):
-                        if (self.maxstocks - abs(np.sum(self.df_["Stock_BUY_Sell"])) > abs(trading_signal)):
-                            if (np.sum(self.df_["Stock_BUY_Sell"]) > 0 ):
-                                self.df_["Stock_BUY_Sell"].iat[self.row+1] = trading_signal
-                            else:
-                                self.df_["Stock_BUY_Sell"].iat[self.row + 1] = 0
-
-                        elif (np.sign(np.sum(self.df_["Stock_BUY_Sell"])) < 0):
-                                self.df_["Stock_BUY_Sell"].iat[self.row + 1] = -(np.sum(self.df_["Stock_BUY_Sell"])+self.maxstocks)
-                        else:
-                            self.df_["Stock_BUY_Sell"].iat[self.row + 1] = -(self.maxstocks - np.sum(self.df_["Stock_BUY_Sell"]))
-
-                    else:
-                        if np.sum(self.df_["Stock_BUY_Sell"].iloc[:self.row]) < 0:
-                            self.portfolio.append([self.CurrentOpenPrice, np.sum(self.portfolio["Quantity"]), 0, 0])
-                            self.df_["Stock_BUY_Sell"].iat[self.row + 1] = np.sum(self.df_["Stock_BUY_Sell"].iloc[:self.row+1]) * liquidatePosition
+                        elif ((self.df_["Close"].iloc[self.row + 1] - self.tradingPrice) / self.tradingPrice) > ( self.BuyMaxPercentChange):
+                            self.df_["Stock_BUY_Sell"].iat[self.row + 1] = -np.sum(self.df_["Stock_BUY_Sell"])
+                            #print("Buy percentage target met ")
                         else:
                             self.df_["Stock_BUY_Sell"].iat[self.row + 1] = 0
 
+                    elif ((np.sign(np.sum(self.df_["Stock_BUY_Sell"])) == 0 )):
+                        self.df_["Stock_BUY_Sell"].iat[self.row + 1] = trading_signal * self.qtylot
+                        self.tradingPrice = self.df_["Close"].iloc[self.row + 1]
+
+                    else:
+                        self.df_["Stock_BUY_Sell"].iat[self.row + 1] = -np.sum(
+                            self.df_["Stock_BUY_Sell"]) + trading_signal * self.qtylot
+                        self.tradingPrice = self.df_["Close"].iloc[self.row + 1]
+                else:
+                    if np.sum(self.df_["Stock_BUY_Sell"].iloc[:self.row]) > 0:
+                        self.df_["Stock_BUY_Sell"].iat[self.row + 1] = np.sum(self.df_["Stock_BUY_Sell"]) * liquidatePosition
+
+                    elif np.sum(self.df_["Stock_BUY_Sell"].iloc[:self.row]) < 0:
+                        self.df_["Stock_BUY_Sell"].iat[self.row + 1] = np.sum(
+                            self.df_["Stock_BUY_Sell"].iloc[:self.row + 1]) * liquidatePosition
+                    else:
+                        self.df_["Stock_BUY_Sell"].iat[self.row + 1] = 0
+            else:
+                #print("Trading Signal Sell ")
+                if (liquidatePosition == 1):  # Dont liquidate
+
+                    if (np.sign(np.sum(self.df_["Stock_BUY_Sell"])) < 0 ):
+                        if ((self.tradingPrice - self.df_["Close"].iloc[self.row + 1]) /self.tradingPrice < self.SellpriceChangeBarrier):
+
+                            self.df_["Stock_BUY_Sell"].iat[self.row + 1] = -np.sum(self.df_["Stock_BUY_Sell"])
+
+                        elif ((self.tradingPrice - self.df_["Close"].iloc[self.row + 1]) /self.tradingPrice > self.SellMaxPercentChange):
+
+                            self.df_["Stock_BUY_Sell"].iat[self.row + 1] = -np.sum(self.df_["Stock_BUY_Sell"])
+
+                        else:
+                            self.df_["Stock_BUY_Sell"].iat[self.row + 1] = 0
+
+                    elif ((np.sign(np.sum(self.df_["Stock_BUY_Sell"])) == 0 )):
+                        self.df_["Stock_BUY_Sell"].iat[self.row + 1] = trading_signal * self.qtylot
+                        self.tradingPrice = self.df_["Close"].iloc[self.row + 1]
+                    else:
+                        self.df_["Stock_BUY_Sell"].iat[self.row + 1] = -np.sum(self.df_["Stock_BUY_Sell"]) + trading_signal * self.qtylot
+                        self.tradingPrice = self.df_["Close"].iloc[self.row + 1]
+
+                else:
+                    if np.sum(self.df_["Stock_BUY_Sell"].iloc[:self.row]) > 0:
+                        self.df_["Stock_BUY_Sell"].iat[self.row + 1] = np.sum(
+                            np.sum(self.df_["Stock_BUY_Sell"])) * liquidatePosition
+
+                    elif np.sum(self.df_["Stock_BUY_Sell"].iloc[:self.row]) < 0:
+                        self.df_["Stock_BUY_Sell"].iat[self.row + 1] = np.sum(
+                            self.df_["Stock_BUY_Sell"].iloc[:self.row + 1]) * liquidatePosition
+                    else:
+                        self.df_["Stock_BUY_Sell"].iat[self.row + 1] = 0
+
             self.row +=1
 
-        #self.df_.to_csv("mainData.csv")
-
+        self.df_.to_csv("mainData.csv")
         quantities = np.array(self.df_["Stock_BUY_Sell"].iloc[self.T2+1:])
         exec_prices = np.array(self.df_["Open"].iloc[self.T2+1:])
         closing_prices = np.array(self.df_["Close"].iloc[self.T2 + 1:])
@@ -209,12 +239,15 @@ class Portfolio:
             u_pnl = pos.update(r)
             profitandloss.append([pos.quantity, pos.r_pnl, u_pnl, pos.average_price])
             pnls.append(u_pnl + pos.r_pnl)
+
         pnl = pd.DataFrame(profitandloss,columns=["Position","Realised_PNL","MTM","AvgPrc"],index=self.df_.iloc[self.T2+1:].index)
         self.df_.index = pd.to_datetime(self.df_.index)
         pnl.index = pd.to_datetime(pnl.index)
         df_pnl = pd.merge(self.df_, pnl, how='inner', left_index=True, right_index=True)
-        df_pnl = df_pnl.drop("Daily_Log_Return",axis =1 )
-        print(df_pnl)
+        pnldf_pnl = df_pnl.drop("Daily_Log_Return",axis =1 )
+        pnl = df_pnl[["Realised_PNL","MTM"]].tail(1)
+        print ( "Total PNL on last Date : {} ".format(pnl.sum(axis=1)))
+
         df_pnl.to_csv("masterFileGenerated.csv")
         df_pnl["Realised_PNL"].to_csv("Realised_PNL.csv")
         df_pnl[["Realised_PNL"]].plot()
@@ -223,16 +256,45 @@ class Portfolio:
         plt.ylabel("PNL")
         plt.savefig("Cummulative_PNL_maxstocks_" + str(self.maxstocks) + ".png")
         plt.show()
-
-        print ("Moving Average Strategy calcualtion Completed")
 if __name__ == "__main__":
-    strat1 = Portfolio(file="SPY.csv",T1= 10,T2=30, field="Close",returnshift= 1,totalcash=10000000,delta=0.02,maxstocks =30)
-    #strat2 = Portfolio(file="SPY.csv", T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000, delta=0.02,
-                  #    maxstocks=1000)
-    #strat3 = Portfolio(file="SPY.csv", T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000, delta=0.02,
-                   #   maxstocks=20)
-    strat1.mastrategy()
-    #strat2.mastrategy()
-    #strat3.mastrategy()
+    #strat1 = Portfolio(file="SPY.csv",T1= 10,T2=20, field="Close",returnshift= 1,totalcash=10000000,delta=0.02,maxstocks =300)
+    #strat1 = Portfolio(file="infy.csv", T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000, delta=0.02,
+                      # maxstocks=100,qtylot=25,BuypriceChangeBarrier=-0.01,SellpriceChangeBarrier=-0.004)
+   # strat1.mastrategy()
 
-## Completed
+    #strat1 = Portfolio(file="SPY.csv",T1= 10,T2=20, field="Close",returnshift= 1,totalcash=10000000,delta=0.02,maxstocks =300)
+    strat1 = Portfolio(file="infy.csv", T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000, delta=0.01,
+                        maxstocks=100,qtylot=50,BuypriceChangeBarrier=-0.01,BuyMaxPercentChange=0.06,SellpriceChangeBarrier=-0.01,
+                       SellMaxPercentChange=0.06)
+
+    strat1.mastrategy()
+
+    strat2 = Portfolio(file="infy.csv", T1=10, T2=20, field="Close", returnshift=1, totalcash=10000000, delta=0.01,
+                        maxstocks=100,qtylot=50,BuypriceChangeBarrier=-0.01,BuyMaxPercentChange=0.06,SellpriceChangeBarrier=-0.01,
+                       SellMaxPercentChange=0.06)
+
+    strat2.mastrategy()
+
+    strat3 = Portfolio(file="infy.csv", T1=10, T2=20, field="Close", returnshift=1, totalcash=10000000, delta=0.02,
+                        maxstocks=100,qtylot=50,BuypriceChangeBarrier=-0.01,BuyMaxPercentChange=0.06,SellpriceChangeBarrier=-0.01,
+                       SellMaxPercentChange=0.06)
+
+    strat3.mastrategy()
+
+    strat4 = Portfolio(file="infy.csv", T1=10, T2=20, field="Close", returnshift=1, totalcash=10000000, delta=0.02,
+                        maxstocks=100,qtylot=50,BuypriceChangeBarrier=-0.01,BuyMaxPercentChange=0.02,SellpriceChangeBarrier=-0.01,
+                       SellMaxPercentChange=0.04)
+
+    strat4.mastrategy()
+
+
+    strat5 = Portfolio(file="infy.csv", T1=10, T2=20, field="Close", returnshift=1, totalcash=10000000, delta=0.03,
+                        maxstocks=100,qtylot=50,BuypriceChangeBarrier=-0.01,BuyMaxPercentChange=0.03,SellpriceChangeBarrier=-0.01,
+                       SellMaxPercentChange=0.03)
+    strat5.mastrategy()
+
+
+
+
+
+## Completed test

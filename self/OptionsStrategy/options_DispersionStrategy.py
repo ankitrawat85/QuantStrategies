@@ -221,7 +221,6 @@ class DispersionStrategy():
         banknifty = DispersionStrategy().time_to_expiry(df_merge)
         full_BankNifty_opt = banknifty
         print("Initial Setup -->")
-        print("SABR volatility ----> ")
         #BankNifty_Opt = DispersionStrategy().delta_options(banknifty)
         print(len(banknifty))
         BankNifty_Opt = DispersionStrategy().atm_strike_price(banknifty)

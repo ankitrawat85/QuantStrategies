@@ -1,12 +1,7 @@
 '''
-Gamma Sclaping Strategy
---
-et's determine the data and the steps required to implement this strategy.
-ATM strike price
-Buy a straddle (Long ATM Call + Long ATM Put)
-Delta of the straddle
-Gamma scalping strategy 6. Nifty rises: the straddle position gets positive Delta (adjustment: sell Nifty futures) 6. Nifty falls: the straddle position gets negative Delta (adjustment: buy Nifty futures)
-Let's get started!!!
+1. Calculate Greeks
+2. Calculate Black scholes implied volatility
+3. Calculate SABR  Volaitliy
 '''
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -57,9 +52,9 @@ def time_to_expiry(opt):
     opt['time_diff']= (opt.Expiry - opt.Date).dt.days
     return opt
 
-def VolProcessing():
+def VolGreeksProcessing(df_):
     final_ = pd.DataFrame()
-    data_ = pd.read_csv("futuredatamerge_nov.csv")
+    data_ = df_
     data_.Expiry = pd.to_datetime(data_.Expiry)
     data_.Date = pd.to_datetime(data_.Date)
     data_ = data_.rename(columns = {"Future_Prices":"futures_price"})
@@ -104,11 +99,13 @@ def VolProcessing():
                 print("Trade Date ->")
                 output = Nifty_Opt[Nifty_Opt["Date"] == tradedate]
                 output = output.reset_index()
-                    #output =  output[["futures_price","Strike Price","impliedvolatility","time_diff"]]
+                print("Start-->>")
+                print(output)
                 initialGuess = [0.02, 0.2, 0.1]
                 future_price = np.array(output["futures_price"])[0]
                 time_diff = np.array(output["time_diff"])[0]
                 print(time_diff)
+                print("Future price : {} and time diff {}".format(future_price,time_diff))
                 res = least_squares(lambda x: sabrcalibration(x,
                                                                   output['Strike Price'],
                                                                   output['impliedvolatility'],future_price,
@@ -118,12 +115,15 @@ def VolProcessing():
                 rho = res.x[1]
                 nu = res.x[2]
                 print('Calibrated SABR model parameters: alpha = %.3f, beta = %.1f, rho = %.3f, nu = %.3f' % (alpha, beta, rho, nu))
+                print ("Output ")
+                print(output)
                 output['sabrsigma'] = output.apply(lambda x : SABR(future_price, x['Strike Price'], time_diff, alpha, beta, rho, nu), axis = 1)
+                print(output[["Strike Price","impliedvolatility","sabrsigma"]])
                 plt.figure(figsize = (12, 7))
                 plt.scatter(output['Strike Price'],output['impliedvolatility'], alpha = 0.8, c = 'g' ,marker = 's', label = 'Market')
                 plt.plot(output['Strike Price'], output['sabrsigma'], '--r', linewidth = 3, label = 'SABR model')
-                plt.ylabel('Implied Vol', fontsize = 20)
-                plt.xlabel('Strike Price', fontsize = 20)
+                plt.ylabel(time_diff, fontsize = 20)
+                plt.xlabel(tradedate, fontsize = 20)
                 plt.legend(fontsize = 16);
                 plt.show()
                 final_ = pd.concat([final_,output])
@@ -131,9 +131,8 @@ def VolProcessing():
                 print("inside final")
     return final_
 
-
-df_ = VolProcessing()
-df_.to_csv("SABR_final.csv")
-print("Final-----")
-print(df_)
+if __name__ == "__main__":
+    data  = pd.read_csv("futuredatamerge_nov.csv")
+    df_ = VolGreeksProcessing(data)
+    df_.to_csv("SABR_final.csv")
 

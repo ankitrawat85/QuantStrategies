@@ -10,9 +10,9 @@ import warnings
 import matplotlib.pyplot as plt
 import pandas as pd
 import sys
-data_start = "2021-01-01"
-data_end = "2021-11-26"
-df_stock = yf.download("infy.ns", data_start, data_end)
+data_start = "2021-1-01"
+data_end = "2021-12-17"
+df_stock = yf.download("INFY.NS", data_start, data_end)
 #print(df_stock)
 df_stock.to_csv("infy.csv")
 

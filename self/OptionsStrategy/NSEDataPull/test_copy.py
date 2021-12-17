@@ -2,35 +2,21 @@ import pandas as pd
 from pynse import *
 from nsepy import get_history
 from datetime import date
-nse=Nse()
-'''d = pd.DataFrame()
+from datetime import datetime
 
+nse=Nse()
+d = pd.DataFrame()
 c = dt.date(2020,6,15)
 x = nse.bhavcopy_fno(c)
 x = pd.DataFrame(x).reset_index()
-Y =  ["AXISBANK","BANKNIFTY","HDFCBANK","ICICIBANK","SBIN"]
-df_2 = x[x["SYMBOL"].isin(Y)]
 
-c = dt.date(2020,6,16)
-x = nse.bhavcopy_fno(c)
-x = pd.DataFrame(x).reset_index()
-Y =  ["AXISBANK","BANKNIFTY","HDFCBANK","ICICIBANK","SBIN"]
-df_1 = x[x["SYMBOL"].isin(Y)]
-print(df_1)
-con = pd.concat([df_2,df_1]).reset_index()
-print(con)
-#print(nse.market_status())
-#nse.info('SBIN')
-#print(nse.get_quote('TCS', segment=Segment.FUT, expiry=dt.date( 2020, 6, 30 )))
-#x= nse.get_quote('HDFC', segment=Segment.OPT, optionType=OptionType.PE, strike=1800.)
-#print(nse.option_chain('INFY'))
-#print(nse.option_chain('infy',expiry=dt.date(2021,12,30)))
-#nse.get_hist('NIFTY 50', from_date=dt.date(2020,1,1),to_date=dt.date(2020,6,26))
+
 
 from datetime import datetime
 
 # now = datetime.now() # current date and time
 
+'''
 '''
 from datetime import datetime
 

@@ -259,13 +259,16 @@ class DispersionStrategy():
         full_BankNifty_opt = banknifty
         print("Initial Setup -->")
         #rint(banknifty)
-        BankNifty_Opt = volatility("SABR", banknifty)
+
         print("SABR volatility ----> ")
         #BankNifty_Opt = DispersionStrategy().delta_options(banknifty)
         BankNifty_Opt = DispersionStrategy().atm_strike_price(banknifty)
         print("atm done")
         BankNifty_Opt = DispersionStrategy().implied_volatility_options(BankNifty_Opt)
         print("implied vol done")
+
+        BankNifty_Opt = volatility("SABR", BankNifty_Opt)
+        print("SABR")
         ## Delta
         BankNifty_Opt = DispersionStrategy().delta_options(BankNifty_Opt)
         print("delta done")
