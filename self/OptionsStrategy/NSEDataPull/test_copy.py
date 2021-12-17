@@ -57,9 +57,9 @@ for k in np.arange(dt.date(2021,9,1),dt.date(2021,12,12)) :
         print(_date)
         df_ = nse.bhavcopy_fno(_date)
         df_ = pd.DataFrame(df_).reset_index()
-        Y = ["AXISBANK", "BANKNIFTY", "HDFCBANK", "ICICIBANK", "SBIN","KOTAKBANK"]
+        Y = ["NIFTY", "BANKNIFTY", "HDFCBANK", "ICICIBANK", "SBIN","KOTAKBANK"]
         df_ = df_[df_["SYMBOL"].isin(Y)]
-        expiry_dates = df_[df_["SYMBOL"] == "AXISBANK"].EXPIRY_DT.unique()
+        expiry_dates = df_[df_["SYMBOL"] == "NIFTY"].EXPIRY_DT.unique()
         expiry_date = [str(i).split("T")[0] for i in expiry_dates]
         df_ = df_[df_["EXPIRY_DT"].isin(expiry_date)]
         data_ = pd.concat([data_,df_])

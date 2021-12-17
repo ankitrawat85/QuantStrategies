@@ -1,10 +1,10 @@
 import pandas as pd
-#from pynse import *
+from pynse import *
 from nsepy import get_history
 from datetime import date
 import numpy as np
 import datetime as dt
-#nse=Nse()
+nse=Nse()
 '''d = pd.DataFrame()
 
 c = dt.date(2020,6,15)
@@ -49,7 +49,7 @@ print("day:", day)
 
 time = now.strftime("%H:%M:%S")
 data_ = pd.DataFrame()
-for k in np.arange(dt.date(2021,9,1),dt.date(2021,12,7)) :
+for k in np.arange(dt.date(2021,12,1),dt.date(2021,12,14)) :
     k = pd.to_datetime(k)
     year = k.strftime("%Y")
     month = k.strftime("%m")
@@ -59,9 +59,9 @@ for k in np.arange(dt.date(2021,9,1),dt.date(2021,12,7)) :
         print(_date)
         df_ = nse.bhavcopy_fno(_date)
         df_ = pd.DataFrame(df_).reset_index()
-        Y = ["AXISBANK", "BANKNIFTY", "HDFCBANK", "ICICIBANK", "SBIN","KOTAKBANK"]
+        Y = ["NIFTY", "BANKNIFTY", "HDFCBANK", "ICICIBANK", "SBIN","KOTAKBANK"]
         df_ = df_[df_["SYMBOL"].isin(Y)]
-        expiry_dates = df_[df_["SYMBOL"] == "AXISBANK"].EXPIRY_DT.unique()
+        expiry_dates = df_[df_["SYMBOL"] == "NIFTY"].EXPIRY_DT.unique()
         expiry_date = [str(i).split("T")[0] for i in expiry_dates]
         df_ = df_[df_["EXPIRY_DT"].isin(expiry_date)]
         data_ = pd.concat([data_,df_])
@@ -124,5 +124,6 @@ futuredatamerge_ = futuredatamerge_.drop_duplicates(keep = 'first')
 futuredatamerge_ = futuredatamerge_.dropna()
 futuredatamerge_.to_csv("futuredatamerge.csv")
 futuredatamerge_ = futuredatamerge_.rename(columns = {"SYMBOL" : "Symbol","TIMESTAMP" : "Date","EXPIRY_DT":"Expiry","OPTION_TYP":"Option Type","STRIKE_PR":"Strike Price","OPEN":"Open","HIGH":"High","LOW":"Low","CLOSE":"Close"})
-futuredatamerge_.to_csv("futuredatamerge.csv")
+#futuredatamerge_.to_csv("futuredatamerge.csv")
+futuredatamerge_[futuredatamerge_["Symbol"] == "NIFTY"].to_csv("futuredatamerge_nifty.csv")
 print(futuredatamerge_.columns)

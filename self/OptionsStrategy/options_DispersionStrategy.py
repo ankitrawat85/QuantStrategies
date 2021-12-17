@@ -107,6 +107,7 @@ class DispersionStrategy():
                                                                     opt.iloc[i]['time_diff']],
                                                                    callPrice=opt.iloc[i]['Close']
                                                                    ).impliedVolatility
+
             else:
                 opt.iloc[i, opt.columns.get_loc('impliedvolatility')] = mibian.BS([opt.iloc[i]['futures_price'],
                                                                     opt.iloc[i]['Strike Price'],
