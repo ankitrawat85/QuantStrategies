@@ -264,10 +264,12 @@ if __name__ == "__main__":
 
     #strat1 = Portfolio(file="SPY.csv",T1= 10,T2=20, field="Close",returnshift= 1,totalcash=10000000,delta=0.02,maxstocks =300)
     strat1 = Portfolio(file="infy.csv", T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000, delta=0.01,
-                        maxstocks=100,qtylot=50,BuypriceChangeBarrier=-0.01,BuyMaxPercentChange=0.06,SellpriceChangeBarrier=-0.01,
+                        maxstocks=500,qtylot=300,BuypriceChangeBarrier=-0.01,BuyMaxPercentChange=0.06,SellpriceChangeBarrier=-0.01,
                        SellMaxPercentChange=0.06)
 
     strat1.mastrategy()
+
+    '''
 
     strat2 = Portfolio(file="infy.csv", T1=10, T2=20, field="Close", returnshift=1, totalcash=10000000, delta=0.01,
                         maxstocks=100,qtylot=50,BuypriceChangeBarrier=-0.01,BuyMaxPercentChange=0.06,SellpriceChangeBarrier=-0.01,
@@ -292,6 +294,7 @@ if __name__ == "__main__":
                         maxstocks=100,qtylot=50,BuypriceChangeBarrier=-0.01,BuyMaxPercentChange=0.03,SellpriceChangeBarrier=-0.01,
                        SellMaxPercentChange=0.03)
     strat5.mastrategy()
+    '''
 
 
 

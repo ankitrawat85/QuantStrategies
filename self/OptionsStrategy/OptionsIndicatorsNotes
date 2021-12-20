@@ -2,3 +2,10 @@
 2.
 3. try to keep simple : MACD, SMA , oscillator
 4.RSI
+The exponential version (EMA) gives greater weight to the more recent prices than it does to the older prices. In this way it reacts to price changes faster. Traders use 9-, 12-, and 26-day EMAs most often to trade from. Remember that the latter two are also used to create the MACD indicator. To me, if you want the moving average to react faster, then you should just use a shorter time period for your calculation on an SMA rather than using an EMA.
+RSI to move above 60 to confirm a bullish trend and under 40 for a bearish one.
+
+a bullish crossover happens when the MACD crosses above
+ the signal line and a bearish crossover happens
+when the MACD crosses below the signal line.
+ A cross up is a buy and a cross down is a sell.
