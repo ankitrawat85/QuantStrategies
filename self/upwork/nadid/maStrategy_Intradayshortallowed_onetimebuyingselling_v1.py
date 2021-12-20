@@ -10,6 +10,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+import pandas as pd
+import yfinance as yf
+
 desired_width=320
 pd.set_option('display.width', desired_width)
 pd.set_option('display.max_columns',20)
@@ -58,6 +61,9 @@ class MvAverageStrategy:
 
     def logreturn(self,df,shift): return df
 
+    def ema(self,data,period):
+        return data.iloc[-period-1:].ewm(span=period, adjust=False).mean()
+
     def sma(self,data,period):
         return data.iloc[-period-1:].rolling(window=period, min_periods=period).mean()[-1]
 
@@ -96,6 +102,10 @@ class Portfolio:
     def __init__(self, file, T1: int, T2: int, field: str,returnshift,SellMaxPercentChange,SellpriceChangeBarrier,BuyMaxPercentChange,BuypriceChangeBarrier,maxstocks:int,qtylot:int = 50 ,totalcash = 100000,delta =0.02,):
         self.df_ = pd.read_csv(file, index_col="Date")
         self.df_.index = pd.to_datetime(self.df_.index)
+        data = yf.download(tickers='INFY.NS', period='3m', interval='5m')
+        data = data[["Open", "High", "Low", "Close", "Adj Close", "Volume"]]
+        data = data.reset_index()
+        self.readtime = data['Datetime'].dt.strftime('%Y-%m-%d')
         self.list_columns = ["Date", "Open", "High", "Low", "Close", "Adj Close", "Volume"]
         self.T1 = T1
         self.T2 = T2
@@ -139,6 +149,7 @@ class Portfolio:
         self.tradingPrice = np.NAN
 
         while self.row+1 < len(self.df_):
+
             self.df_['mvAverageStrategy_T1'].iat[self.row+1] = MvAverageStrategy().sma(self.df_.iloc[:self.row]["Daily_Log_Return"], self.T1)
             self.df_['mvAverageStrategy_T2'].iat[self.row+1] = MvAverageStrategy().sma(self.df_.iloc[:self.row]["Daily_Log_Return"], self.T2)
             self.CurrentOpenPrice = self.df_.iloc[self.row].Open
@@ -257,44 +268,45 @@ class Portfolio:
         plt.savefig("Cummulative_PNL_maxstocks_" + str(self.maxstocks) + ".png")
         plt.show()
 if __name__ == "__main__":
-    #strat1 = Portfolio(file="SPY.csv",T1= 10,T2=20, field="Close",returnshift= 1,totalcash=10000000,delta=0.02,maxstocks =300)
-    #strat1 = Portfolio(file="infy.csv", T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000, delta=0.02,
-                      # maxstocks=100,qtylot=25,BuypriceChangeBarrier=-0.01,SellpriceChangeBarrier=-0.004)
-   # strat1.mastrategy()
-
-    #strat1 = Portfolio(file="SPY.csv",T1= 10,T2=20, field="Close",returnshift= 1,totalcash=10000000,delta=0.02,maxstocks =300)
-    strat1 = Portfolio(file="infy.csv", T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000, delta=0.01,
-                        maxstocks=500,qtylot=300,BuypriceChangeBarrier=-0.01,BuyMaxPercentChange=0.06,SellpriceChangeBarrier=-0.01,
+    data = yf.download(tickers='INFY.NS', period='3mo', interval='1d')
+    data = data[["Open", "High", "Low", "Close", "Adj Close", "Volume"]]
+    data = data.reset_index()
+    data.to_csv("infy_realtime.csv")
+    data =data.rename(columns = {"index":"Date"})
+    data.to_csv("infy_realtime.csv")
+    data_csv = "infy_realtime.csv"
+    '''
+    strat1 = Portfolio(file=data_csv, T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000, delta=0.01,
+                        maxstocks=500,qtylot=50,BuypriceChangeBarrier=-0.01,BuyMaxPercentChange=0.06,SellpriceChangeBarrier=-0.01,
                        SellMaxPercentChange=0.06)
 
     strat1.mastrategy()
-
     '''
 
-    strat2 = Portfolio(file="infy.csv", T1=10, T2=20, field="Close", returnshift=1, totalcash=10000000, delta=0.01,
-                        maxstocks=100,qtylot=50,BuypriceChangeBarrier=-0.01,BuyMaxPercentChange=0.06,SellpriceChangeBarrier=-0.01,
-                       SellMaxPercentChange=0.06)
+    strat2 = Portfolio(file=data_csv, T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000, delta=0.02,
+                        maxstocks=500,qtylot=50,BuypriceChangeBarrier=-0.01,BuyMaxPercentChange=0.04,SellpriceChangeBarrier=-0.01,
+                       SellMaxPercentChange=0.04)
 
     strat2.mastrategy()
-
-    strat3 = Portfolio(file="infy.csv", T1=10, T2=20, field="Close", returnshift=1, totalcash=10000000, delta=0.02,
+    '''
+    strat3 = Portfolio(file=data_csv, T1=10, T2=20, field="Close", returnshift=1, totalcash=10000000, delta=0.02,
                         maxstocks=100,qtylot=50,BuypriceChangeBarrier=-0.01,BuyMaxPercentChange=0.06,SellpriceChangeBarrier=-0.01,
                        SellMaxPercentChange=0.06)
 
     strat3.mastrategy()
 
-    strat4 = Portfolio(file="infy.csv", T1=10, T2=20, field="Close", returnshift=1, totalcash=10000000, delta=0.02,
+    strat4 = Portfolio(file=data_csv, T1=10, T2=20, field="Close", returnshift=1, totalcash=10000000, delta=0.02,
                         maxstocks=100,qtylot=50,BuypriceChangeBarrier=-0.01,BuyMaxPercentChange=0.02,SellpriceChangeBarrier=-0.01,
                        SellMaxPercentChange=0.04)
 
     strat4.mastrategy()
 
 
-    strat5 = Portfolio(file="infy.csv", T1=10, T2=20, field="Close", returnshift=1, totalcash=10000000, delta=0.03,
+    strat5 = Portfolio(file=data_csv, T1=10, T2=20, field="Close", returnshift=1, totalcash=10000000, delta=0.03,
                         maxstocks=100,qtylot=50,BuypriceChangeBarrier=-0.01,BuyMaxPercentChange=0.03,SellpriceChangeBarrier=-0.01,
                        SellMaxPercentChange=0.03)
     strat5.mastrategy()
-    '''
+   '''
 
 
 
