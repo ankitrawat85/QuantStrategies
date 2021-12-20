@@ -33,9 +33,10 @@ pd.set_option('display.width', desired_width)
 pd.set_option('display.max_columns',30)
 
 
-df = yf.download("INFY.NS",
-                 start="2020-01-01",
-                 end="2021-12-17")
+df  = yf.download(tickers='INFY.NS', period='1wk', interval='1m')
+df  = df [["Open", "High", "Low", "Close", "Adj Close", "Volume"]]
+df  = df .reset_index()
+df  = df .rename(columns={"Datetime": "Date"})
 
 ## TA
 
