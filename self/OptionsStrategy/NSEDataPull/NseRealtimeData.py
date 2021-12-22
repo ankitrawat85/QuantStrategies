@@ -64,15 +64,22 @@ if __name__ == "__main__":
 
        stock_ = nseRealTime().stock("INFY")
        stock_ = pd.DataFrame.from_dict(stock_)
+       print(stock_)
        print(stock_.columns)
-       print(stock_[["open","close","lastPrice"]])
-       '''
+       stock_ = stock_.reset_index()
+       print(stock_[["timestamp","open","close","lowerCP","upperCP","lastPrice","symbol"]])
+
        ## Options Real Time Data
        opt_ = nseRealTime().Option('INFY',segment=Segment.OPT, optionType=OptionType.PE, strike=1800.)
-       print((opt_))
-       print("convert to dataframe ")
-       print(pd.DataFrame.from_dict(opt_))
+       print((opt_.values()))
+       tem_ = pd.DataFrame()
+       for i in opt_.keys():
+              tem_[str(i)] = opt_.get(i)
+              print(tem_)
 
+       print(tem_)
+
+       '''
        ##  Future Real Time Data
        Future_ = nseRealTime().Future('INFY', segment=Segment.FUT, expiry=dt.date(2021,12,30))
        print(pd.DataFrame.from_dict(Future_))
