@@ -284,7 +284,7 @@ if __name__ == "__main__":
     '''
 
     strat2 = Portfolio(file=data_csv, T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000, delta=0.02,
-                        maxstocks=500,qtylot=50,BuypriceChangeBarrier=-0.01,BuyMaxPercentChange=0.04,SellpriceChangeBarrier=-0.01,
+                        maxstocks=500,qtylot=300,BuypriceChangeBarrier=-0.01,BuyMaxPercentChange=0.04,SellpriceChangeBarrier=-0.01,
                        SellMaxPercentChange=0.04)
 
     strat2.mastrategy()

@@ -84,7 +84,7 @@ def testBrent():
     #f = lambda vol: (bsPrice(100, 0.02, vol, 1.0, 90, PayoffType.Call) - price)
     price = bsPrice(S=721.85, r=0.00, vol=0.1, T=0.158, strike=440, payoffType=PayoffType.Put)
     print(price)
-    f = lambda vol: (bsPrice(37605.9,0.00, vol,0.246575342,34500, PayoffType.Put) -6370.8)
+    f = lambda vol: (bsPrice(1863.4,0.00, vol,0.019178082,1800,PayoffType.Put) -2.650)
 
     a, b = 0.0001, 0.5
     iv = optimize.brentq(f, 1e-12, 2)

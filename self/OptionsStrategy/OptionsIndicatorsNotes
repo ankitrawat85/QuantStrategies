@@ -9,3 +9,8 @@ a bullish crossover happens when the MACD crosses above
  the signal line and a bearish crossover happens
 when the MACD crosses below the signal line.
  A cross up is a buy and a cross down is a sell.
+
+ Nifty 17050 - ATM : 17 Call ->
+ Nifty 17050 - ATM : put - Check Open Interest :  Sell Put Greater than sell Call hence expiry will be above 17050
+
+ 17050 max put writers hence might will see high
