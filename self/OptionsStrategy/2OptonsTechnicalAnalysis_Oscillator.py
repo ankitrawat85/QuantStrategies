@@ -32,7 +32,7 @@ desired_width=320
 pd.set_option('display.width', desired_width)
 pd.set_option('display.max_columns',30)
 
-
+#df  = yf.download(tickers='INFY.NS', period='3mo', interval='1d')
 df  = yf.download(tickers='INFY.NS', period='1mo', interval='2m')
 df  = df [["Open", "High", "Low", "Close", "Adj Close", "Volume"]]
 df  = df .reset_index()

@@ -2,12 +2,25 @@ import sqlite3
 from sqlite3 import Error
 import numpy as np
 import pandas as pd
-
+import datetime
+import time
+from datetime import date
 from self.OptionsStrategy.NSEDataPull.NseRealtimeData import nseRealTime
 from self.OptionsStrategy.optionsvaluation.optionpricing import  Vol
 from self.OptionsStrategy.optionsvaluation.optionpricing import optionsGreeks
 import datetime
 import itertools
+
+
+import time
+from datetime import datetime
+from time import time as _time, sleep as _sleep
+
+# datetime object containing current date and time
+now = datetime.now()
+print("now =", now)
+
+
 
 class Activity:
     def __init__(self):
@@ -148,73 +161,74 @@ class database:
             print(row)
         return rows
 
-if __name__ == '__main__':
-
-    RealTimeOption = nseRealTime().OptionChain("INFY", option_expiry=datetime.date(2021, 12, 30),instrument="OPIDX")
-    RealTimeOption = RealTimeOption[RealTimeOption["OPEN_INT"] != 0]
-    RealTimeOption = RealTimeOption.dropna(axis=0)
-    data_ = RealTimeOption
-    data_ = data_.rename(columns = {"Strike Price" : "Strike_Price","Future Prices":"Future_Prices","Option Type":"Option_Type"})
-
-
-    ##  Volatility and Greeks calculation
-    data_["time_diff"] = optionsGreeks().time_to_expiry(data_[["Expiry", "Date"]])["time_diff"]
-    data_["impliedvolatility"] = \
-        optionsGreeks().implied_volatility_options(
-            data_[["Strike_Price", "Future_Prices", "Close", "time_diff", "Option_Type"]])[
-            "impliedvolatility"]
+def trigger():
+        RealTimeOption = nseRealTime().OptionChain("NIFTY", option_expiry=date(2021, 12, 30),instrument="OPIDX")
+        RealTimeOption = RealTimeOption[RealTimeOption["OPEN_INT"] != 0]
+        RealTimeOption = RealTimeOption.dropna(axis=0)
+        data_ = RealTimeOption
+        data_ = data_.rename(columns = {"Strike Price" : "Strike_Price","Future Prices":"Future_Prices","Option Type":"Option_Type"})
 
 
-    data_["Delta"] = \
-        optionsGreeks().delta_options(
-            data_[["Strike_Price", "Future_Prices", "Close", "time_diff", "Option_Type", "impliedvolatility"]])[
-            "delta"]
-
-    data_["Gamma"] = \
-        optionsGreeks().gamma_options(
-            data_[["Strike_Price", "Future_Prices", "Close", "time_diff", "Option_Type", "impliedvolatility", "Delta"]])[
-            "gamma"]
-
-    data_["Theta"] = \
-        optionsGreeks().theta_options(
-            data_[["Strike_Price", "Future_Prices", "Close", "time_diff", "Option_Type", "impliedvolatility"]])[
-            "theta"]
-
-    data_["Vega"] = \
-        optionsGreeks().vega_options(
-            data_[["Strike_Price", "Future_Prices", "Close", "time_diff", "Option_Type", "impliedvolatility"]])[
-            "vega"]
-
-    #
-    print(data_.columns)
-
-    data_["Date"] = data_["Date"].astype('object')
-    # data_ = data_.drop('Date',axis =1)
-    datetemp = str(data_.iat[0, 23])
-    data_.iloc[:, 23] = datetemp
-    task1 = data_.values
-    print("task Length")
-    print(len(task1))
-   
-    ## SQL Steps
-    instance = database(database="StockTrading.db")
-    ## Create Database
-    instance.CreatDatabase()
-
-    ## Create Connection
-    conn = instance.create_connection()
-    ## Create Table
-    instance.CreatTable(conn, createtablescripts().sql_create_optionchain_table)
-    ## Create Insert Data
-    
-    for i in range(0,len(task1)):
-        print(i)
-        instance.insertOptionChain(conn,task1[i])
+        ##  Volatility and Greeks calculation
+        data_["time_diff"] = optionsGreeks().time_to_expiry(data_[["Expiry", "Date"]])["time_diff"]
+        data_["impliedvolatility"] = \
+            optionsGreeks().implied_volatility_options(
+                data_[["Strike_Price", "Future_Prices", "Close", "time_diff", "Option_Type"]])[
+                "impliedvolatility"]
 
 
-    ## select Statement
-    #instance = database(database="StockTrading9.db")
-    #conn = instance.create_connection()
-    ## Create Database
-    df = pd.read_sql_query("select Date,Expiry,Strike_Price,identifier,Open_int,lib_impliedVolatility,impliedvolatility,Delta,Gamma,Theta,Vega,Option_Type,time_diff,Future_Prices,Close FROM optionchain", conn)
-    print(df)
+        data_["Delta"] = \
+            optionsGreeks().delta_options(
+                data_[["Strike_Price", "Future_Prices", "Close", "time_diff", "Option_Type", "impliedvolatility"]])[
+                "delta"]
+
+        data_["Gamma"] = \
+            optionsGreeks().gamma_options(
+                data_[["Strike_Price", "Future_Prices", "Close", "time_diff", "Option_Type", "impliedvolatility", "Delta"]])[
+                "gamma"]
+
+        data_["Theta"] = \
+            optionsGreeks().theta_options(
+                data_[["Strike_Price", "Future_Prices", "Close", "time_diff", "Option_Type", "impliedvolatility"]])[
+                "theta"]
+
+        data_["Vega"] = \
+            optionsGreeks().vega_options(
+                data_[["Strike_Price", "Future_Prices", "Close", "time_diff", "Option_Type", "impliedvolatility"]])[
+                "vega"]
+
+        #
+        print(data_.columns)
+
+        data_["Date"] = data_["Date"].astype('object')
+        # data_ = data_.drop('Date',axis =1)
+        datetemp = str(data_.iat[0, 23])
+        data_.iloc[:, 23] = datetemp
+        task1 = data_.values
+        print("task Length")
+        print(len(task1))
+
+        ## SQL Steps
+        instance = database(database="StockTrading.db")
+        ## Create Database
+        instance.CreatDatabase()
+
+        ## Create Connection
+        conn = instance.create_connection()
+        ## Create Table
+        instance.CreatTable(conn, createtablescripts().sql_create_optionchain_table)
+        ## Create Insert Data
+
+        for i in range(0,len(task1)):
+            print(i)
+            instance.insertOptionChain(conn,task1[i])
+
+
+        ## select Statement
+        #instance = database(database="StockTrading9.db")
+        #conn = instance.create_connection()
+        ## Create Database
+        df = pd.read_sql_query("select Date,Expiry,Strike_Price,identifier,Open_int,lib_impliedVolatility,impliedvolatility,Delta,Gamma,Theta,Vega,Option_Type,time_diff,Future_Prices,Close FROM optionchain", conn)
+        print(df)
+
+trigger()

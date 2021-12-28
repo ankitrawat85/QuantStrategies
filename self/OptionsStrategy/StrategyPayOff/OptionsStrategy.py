@@ -1,0 +1,214 @@
+'''
+Different Strategies Pay off
+'''
+## Import self code
+#from self.OptionsStrategy.StrategyPayOff.binomial import  *
+
+## Import Libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from enum import Enum
+import math
+
+class OptionsStrategiesPayoff:
+    def __init__(self):
+        self.buy = -1
+        self.sell = 1
+
+    def bullcallspread(self,kwargs):
+        print("**Strategy : BULL CALL SPREAD :Buy - ITM : Lower Strike Price | Sell - OTM  - Higher Strike Price")
+        callSpread = OptionsStrategiesPayoff().sell * kwargs["OTMStrike"] + kwargs["ITMStrike"] * OptionsStrategiesPayoff().buy
+        maxLoss =  OptionsStrategiesPayoff().sell* kwargs["OTMStrikeCE"]+kwargs["ITMStrikeCE"] * OptionsStrategiesPayoff().buy
+        maxprofit =  callSpread+ maxLoss
+        print ("callSpread :  {} ,maxLoss  :  {} , maxprofit : {} ".format(callSpread,maxLoss,maxprofit))
+
+    def bullputspread(self,kwargs):
+        print(" Strategy : BULL PUT SPREAD :Sell -ITM : HIGHER STRIKE PRICE |  Buy OTM  put with LOWER STRIKE PRICE")
+        callSpread = OptionsStrategiesPayoff().buy * kwargs["OTMStrike"] + kwargs["ITMStrike"] * OptionsStrategiesPayoff().sell
+        maxLoss =  OptionsStrategiesPayoff().buy* kwargs["OTMStrikePE"]+kwargs["ITMStrikePE"] * OptionsStrategiesPayoff().sell
+        maxprofit = callSpread + maxLoss
+        print ("callSpread :  {} ,maxLoss  :  {} , maxprofit : {} ".format(callSpread,maxLoss,maxprofit))
+
+
+    def bearcallspread(self,kwargs):
+        print("** Strategy : bearcallspread : Bear Call SPREAD :Sell -ITM : Lower STRIKE PRICE |  Long  OTM  Higher STRIKE PRICE")
+        callSpread = OptionsStrategiesPayoff().buy * kwargs["OTMStrike"] + kwargs["ITMStrike"] * OptionsStrategiesPayoff().sell
+        maxLoss = OptionsStrategiesPayoff().buy * kwargs["OTMStrikeCE"] + kwargs["ITMStrikeCE"] * OptionsStrategiesPayoff().sell
+        maxprofit = callSpread + maxLoss
+        print("callSpread :  {} ,maxLoss  :  {} , maxprofit : {} ".format(callSpread, maxLoss, maxprofit))
+
+    def bearputspread(self,kwargs):
+        print("** Strategy : BEAR PUT SPREAD :SHORT ITM : Put with LOWER STRIKE PRICE |  LONG call OTM  with HIGHER STRIKE PRICE")
+        callSpread = OptionsStrategiesPayoff().sell * kwargs["OTMStrike"] + kwargs["ITMStrike"] * OptionsStrategiesPayoff().buy
+        maxLoss = OptionsStrategiesPayoff().buy * kwargs["OTMStrikePE"] + kwargs["ITMStrikePE"] * OptionsStrategiesPayoff().sell
+        print(OptionsStrategiesPayoff().sell * kwargs["OTMStrikePE"] , kwargs["ITMStrikePE"] * OptionsStrategiesPayoff().buy)
+        maxprofit = callSpread + maxLoss
+        print("callSpread :  {} ,maxLoss  :  {} , maxprofit : {} ".format(callSpread, maxLoss, maxprofit))
+
+
+    def callRatiobackSpread(self,kwargs):
+        print("Strategy : Bullish :SHORT 1 ITM : call with Lower STRIKE PRICE |  LONG 2 call OTM  with HIGHER STRIKE PRICE")
+        callSpread = 2 * OptionsStrategiesPayoff().buy * kwargs["OTMStrike"] + kwargs["ITMStrike"] * OptionsStrategiesPayoff().sell
+        maxLoss = 2 * OptionsStrategiesPayoff().buy * kwargs["OTMStrikeCE"] + kwargs["ITMStrikeCE"] * OptionsStrategiesPayoff().sell
+        maxprofit = callSpread + maxLoss
+        print("callSpread :  {} ,maxLoss  :  {} , maxprofit : {} ".format(callSpread, maxLoss, maxprofit))
+
+
+    def putRatiobackSpread(self,kwargs):
+        print("Strategy : Bearish  :SHORT 1 ITM : Put with Higher  STRIKE PRICE |  LONG 2 put  OTM  with LOWER STRIKE PRICE")
+        callSpread = 2 * OptionsStrategiesPayoff().buy * kwargs["OTMStrike"] + kwargs["ITMStrike"] * OptionsStrategiesPayoff().sell
+        maxLoss = 2 * OptionsStrategiesPayoff().buy * kwargs["OTMStrikePE"] + kwargs["ITMStrikePE"] * OptionsStrategiesPayoff().sell
+        maxprofit = callSpread + maxLoss
+        print("callSpread :  {} ,maxLoss  :  {} , maxprofit : {} ".format(callSpread, maxLoss, maxprofit))
+
+    def longstrandle(self,kwargs):
+        print("Strategy : uncertain : LONG Call  and Long Put of same Strike Price")
+        maxLoss = OptionsStrategiesPayoff().buy * kwargs["ATMStrikeCE"] + kwargs["ATMStrikePE"] * OptionsStrategiesPayoff().sell
+        print("maxLoss  :  {} and  maxprofit : unlimited ".format(maxLoss))
+
+
+    def shortstrandle(self,kwargs):
+        print("Strategy - shortstrandle : uncertain : LONG Call  and Long Put of same Strike Price")
+        maxLoss = kwargs["ATMStrikeCE"] + kwargs["ATMStrikePE"]
+        print("maxLoss  :  {} and maxprofit : unlimited  ".format(maxLoss))
+
+    def butterfly(self,*args,kwargs):
+        pass
+
+    def longstrangle(self,kwargs):
+        print("Strategy - longstrangle : Uncertain   :Long  1 OTM  : Call with Higher  STRIKE PRICE |  LONG 1 Call OTM  with LOWER STRIKE PRICE")
+        maxLoss = OptionsStrategiesPayoff().buy * kwargs["OTMStrikeCE"] + kwargs["OTMStrikePE"] * OptionsStrategiesPayoff().sell
+        print("maxLoss  :  {} , maxprofit : {} ".format(maxLoss, "Unlimited"))
+
+    def shortstrangle(self,kwargs):
+        print("Strategy - shortstrangle: Not Much movement : short  1 OTM  : Call with Higher  STRIKE PRICE |  short 1 Call OTM  with LOWER STRIKE PRICE")
+        maxLoss = OptionsStrategiesPayoff().buy * kwargs["OTMStrikeCE"] + kwargs["OTMStrikePE"] * OptionsStrategiesPayoff().sell
+        print("maxLoss  :  {} , maxprofit : {} ".format(maxLoss, "Unlimited"))
+
+
+
+class OptionsStrategiesRecommendation():
+    def  osrecom(self,*args,**kargs):
+
+        for key,values in kargs.items():
+            kargs[key] = np.array(values)
+
+        print("--------------------------------------------------------------------------------------------------------------------------------")
+        print ("  ITM_Strike  {} and  PE_Premium   {}  and CE_Premium: {} ".format(kargs["ITMStrike"],kargs["ITMStrikePE"],kargs["ITMStrikeCE"]))
+        print("  ATM_Strike {}   and  PE_Premium   {}  and CE_Premium: {}  ".format(kargs["ATMStrike"],kargs["ATMStrikePE"],kargs["ATMStrikeCE"]))
+        print("  OTM_Strike {}   and  PE_Premium   {}  and CE_Premium: {}  ".format(kargs["OTMStrike"],kargs["OTMStrikePE"],kargs["OTMStrikeCE"]))
+        print("-------------------------------------------xxxxxxxxxxxxxxxxxxxxxxxxxxx-----------------------------------------------------------")
+
+        if (kargs["MarketView"]  ==  MarketView.moderately_bullish):
+            print(MarketView.moderately_bullish)
+            if (kargs["expectation"] == MarketView.expectation_Reduce_Cost):
+                OptionsStrategiesPayoff().bullcallspread(kargs)
+
+            if(kargs["expectation"] == MarketView.expectation_floor_to_downside ):
+                OptionsStrategiesPayoff().bullputspread(kargs)
+
+        elif (kargs["MarketView"]  ==  MarketView.moderately_bearish):
+            if (kargs["expectation"] == MarketView.expectation_Reduce_Cost):
+                OptionsStrategiesPayoff().bearcallspread(kargs)
+
+            elif (kargs["expectation"] == MarketView.expectation_floor_to_downside):
+                OptionsStrategiesPayoff().bearputspread(kargs)
+
+
+        elif (kargs["MarketView"] == MarketView.very_bullish):
+            OptionsStrategiesPayoff().callRatiobackSpread(kargs)
+
+        elif (kargs["MarketView"] == MarketView.very_bearish):
+            OptionsStrategiesPayoff().putRatiobackSpread(kargs)
+
+        elif (kargs["MarketView"] == MarketView.uncertain):
+            OptionsStrategiesPayoff().longstrandle(kargs)
+            OptionsStrategiesPayoff().longstrangle(kargs)
+
+        elif (kargs["MarketView"] == MarketView.rangebound):
+            OptionsStrategiesPayoff().shortstrandle(kargs)
+            #OptionsStrategiesPayoff().butterfly(kargs)
+
+        elif (kargs["HighestDelta"] == MarketView.HighestDelta):
+             print("Inisde highest Delta")
+             strikeDelta = pd.DataFrame(kargs["data"])
+             print(strikeDelta)
+             return strikeDelta.iloc[strikeDelta[strikeDelta.columns[-1]].idxmax()]
+
+        elif (kargs["deltahedge"] == MarketView.deltahedge):
+            print("inside delta hedge ")
+            df_ = pd.DataFrame(kargs["data"])
+            print(df_.iloc[:,-1].sum())
+            netDelta =  df_.iloc[:,-1].sum()
+            return netDelta
+
+class MarketView(Enum):
+        neutral = 0
+        moderately_bullish = 1
+        very_bullish = 2
+        moderately_bearish = -1
+        very_bearish = -2
+        uncertain = 3
+        rangebound = 4
+        HighestDelta = 5
+        expectation_Reduce_Cost = 1
+        expectation_floor_to_downside = 2
+        deltahedge = 6
+
+if __name__ == "__main__":
+    deltahedge = MarketView.deltahedge
+    MarketView = MarketView.neutral
+    expectation = np.nan
+    HighestDelta = np.nan
+    StrikeRange = np.arange(17000,18000,50),
+    ATMStrike = 17200,
+    ATMStrikeCE = 110,
+    ATMStrikePE = 70,
+    ITMStrike = 17000,
+    ITMStrikePE = 26,
+    ITMStrikeCE = 268,
+    OTMStrike = 17400,
+    OTMStrikeCE = 25,
+    OTMStrikePE = 183,
+    data = pd.DataFrame( {"Strike":[1,2,3,4,5,6],"Premium":[1,2,6,4,3,5]})
+
+    #new_delta_ =  OptionsStrategiesRecommendation().osrecom(HighestDelta = np.nan ,MarketView = MarketView, deltahedge = deltahedge, data= data)
+    #Highest_delta = OptionsStrategiesRecommendation().osrecom(HighestDelta=5, MarketView=np.nan,deltahedge=np.nan, data=data)
+
+    Highest_delta = OptionsStrategiesRecommendation().osrecom(MarketView=MarketView.rangebound,StrikeRange =StrikeRange,
+                                                              ATMStrike=ATMStrike,ATMStrikeCE=ATMStrikeCE,
+                                                              ATMStrikePE=ATMStrikePE,ITMStrike=ITMStrike,
+                                                              ITMStrikePE =ITMStrikePE,ITMStrikeCE=ITMStrikeCE,
+                                                              OTMStrike=OTMStrike,OTMStrikeCE=OTMStrikeCE,
+                                                              OTMStrikePE=OTMStrikePE)
+
+
+    moderately_bullish_CE = OptionsStrategiesRecommendation().osrecom(MarketView=MarketView.moderately_bullish, StrikeRange=StrikeRange,
+                                                              ATMStrike=ATMStrike, ATMStrikeCE=ATMStrikeCE,
+                                                              ATMStrikePE=ATMStrikePE, ITMStrike=ITMStrike,
+                                                              ITMStrikePE=ITMStrikePE, ITMStrikeCE=ITMStrikeCE,
+                                                              OTMStrike=OTMStrike, OTMStrikeCE=OTMStrikeCE,
+                                                              OTMStrikePE=OTMStrikePE,expectation=MarketView.expectation_Reduce_Cost)
+
+    moderately_bullish_PE = OptionsStrategiesRecommendation().osrecom(MarketView=MarketView.moderately_bullish, StrikeRange=StrikeRange,
+                                                              ATMStrike=ATMStrike, ATMStrikeCE=ATMStrikeCE,
+                                                              ATMStrikePE=ATMStrikePE, ITMStrike=ITMStrike,
+                                                              ITMStrikePE=ITMStrikePE, ITMStrikeCE=ITMStrikeCE,
+                                                              OTMStrike=OTMStrike, OTMStrikeCE=OTMStrikeCE,
+                                                              OTMStrikePE=OTMStrikePE,expectation=MarketView.expectation_floor_to_downside)
+
+
+    moderately_bearish_CE = OptionsStrategiesRecommendation().osrecom(MarketView=MarketView.moderately_bearish, StrikeRange=StrikeRange,
+                                                              ATMStrike=ATMStrike, ATMStrikeCE=ATMStrikeCE,
+                                                              ATMStrikePE=ATMStrikePE, ITMStrike=ITMStrike,
+                                                              ITMStrikePE=ITMStrikePE, ITMStrikeCE=ITMStrikeCE,
+                                                              OTMStrike=OTMStrike, OTMStrikeCE=OTMStrikeCE,
+                                                              OTMStrikePE=OTMStrikePE,expectation=MarketView.expectation_Reduce_Cost)
+
+    moderately_bearish_PE = OptionsStrategiesRecommendation().osrecom(MarketView=MarketView.moderately_bearish, StrikeRange=StrikeRange,
+                                                              ATMStrike=ATMStrike, ATMStrikeCE=ATMStrikeCE,
+                                                              ATMStrikePE=ATMStrikePE, ITMStrike=ITMStrike,
+                                                              ITMStrikePE=ITMStrikePE, ITMStrikeCE=ITMStrikeCE,
+                                                              OTMStrike=OTMStrike, OTMStrikeCE=OTMStrikeCE,
+                                                              OTMStrikePE=OTMStrikePE,expectation=MarketView.expectation_floor_to_downside)

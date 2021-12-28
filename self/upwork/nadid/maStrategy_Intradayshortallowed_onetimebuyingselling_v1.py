@@ -176,7 +176,6 @@ class Portfolio:
                     if (np.sign(np.sum(self.df_["Stock_BUY_Sell"])) > 0 ):
 
                         if ((self.df_["Close"].iloc[self.row + 1] - self.tradingPrice) / self.tradingPrice) < ( self.BuypriceChangeBarrier):
-                           # print("Condition Met ")
                             self.df_["Stock_BUY_Sell"].iat[self.row + 1] = -np.sum(self.df_["Stock_BUY_Sell"])
 
                         elif ((self.df_["Close"].iloc[self.row + 1] - self.tradingPrice) / self.tradingPrice) > ( self.BuyMaxPercentChange):
@@ -260,6 +259,8 @@ class Portfolio:
         print ( "Total PNL on last Date : {} ".format(pnl.sum(axis=1)))
 
         df_pnl.to_csv("masterFileGenerated.csv")
+        print(df_pnl.columns)
+        print(df_pnl[["Open","High","Low","Close","trading_signal" ,"liquidatePosition","Position","Realised_PNL"]].tail(5))
         df_pnl["Realised_PNL"].to_csv("Realised_PNL.csv")
         df_pnl[["Realised_PNL"]].plot()
         plt.title("Cummulative_PNL_maxstocks_"+ str(self.maxstocks))
