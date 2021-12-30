@@ -201,7 +201,7 @@ class Vol:
         return df
 
     def implied_volatility_options(self,opt):
-        print("inside implied vol")
+        print("implied volatility calculation")
         opt['impliedvolatility'] = np.nan
         #opt = opt.iloc[:3]
         opt.loc[(opt.time_diff == 0), 'time_diff'] = 0.0000001
@@ -228,7 +228,10 @@ class optionsGreeks():
     def implied_volatility_options(self, opt):
         opt['impliedvolatility'] = np.nan
         #opt["time_diff"] = opt["time_diff"]  * 365
+        print("implied volatility calculation")
         opt.loc[(opt.time_diff == 0), 'time_diff'] = 0.0000001
+        print(opt)
+        print("DataFrame lenght : {}".format(len(opt)))
         for i in range(0, len(opt)):
             print(i)
             if opt.iloc[i]['Option_Type'] == 'CE':
@@ -250,88 +253,100 @@ class optionsGreeks():
     def time_to_expiry(self,opt):
         opt.Expiry = pd.to_datetime(opt["Expiry"])
         opt.Date = pd.to_datetime(opt["Date"])
-        opt['time_diff'] = (opt.Expiry - opt.Date).dt.days
+        opt['time_diff'] = (opt.Expiry - opt.Date).dt.days + 1
         return opt
 
 
     def delta_options(self,opt):
+        print("Delta calculation")
         opt['delta'] = np.nan
         for i in range(0, len(opt)):
-            print(i)
-            if opt.iloc[i]['Option_Type'] == 'CE':
-                opt.iloc[i, opt.columns.get_loc('delta')] = mibian.BS([opt.iloc[i]['Future_Prices'],
-                                                                       opt.iloc[i]['Strike_Price'],
-                                                                       0,
-                                                                       opt.iloc[i]['time_diff']],
-                                                                      volatility=opt.iloc[i]['impliedvolatility']
-                                                                      ).callDelta
-            else:
-                opt.iloc[i, opt.columns.get_loc('delta')] = mibian.BS([opt.iloc[i]['Future_Prices'],
-                                                                       opt.iloc[i]['Strike_Price'],
-                                                                       0,
-                                                                       opt.iloc[i]['time_diff']],
-                                                                      volatility=opt.iloc[i]['impliedvolatility']
-                                                                      ).putDelta
+            print(opt.iloc[i])
+            try:
+                if opt.iloc[i]['Option_Type'] == 'CE':
+                    opt.iloc[i, opt.columns.get_loc('delta')] = mibian.BS([opt.iloc[i]['Future_Prices'],
+                                                                           opt.iloc[i]['Strike_Price'],
+                                                                           0,
+                                                                           opt.iloc[i]['time_diff']],
+                                                                          volatility=opt.iloc[i]['impliedvolatility']
+                                                                          ).callDelta
+                else:
+                    opt.iloc[i, opt.columns.get_loc('delta')] = mibian.BS([opt.iloc[i]['Future_Prices'],
+                                                                           opt.iloc[i]['Strike_Price'],
+                                                                           0,
+                                                                           opt.iloc[i]['time_diff']],
+                                                                          volatility=opt.iloc[i]['impliedvolatility']
+                                                                          ).putDelta
+            except:
+                print ("Failed to calcualte detta for row  : {}".format(i))
         return opt
 
     def gamma_options(self, opt):
         opt['gamma'] = np.nan
+        print("Gamma  calculation")
         # opt = opt.iloc[:3]
         for i in range(0, len(opt)):
-            print(i)
-            if opt.iloc[i]['Option_Type'] == 'CE':
-                opt.iloc[i, opt.columns.get_loc('gamma')] = mibian.BS([opt.iloc[i]['Future_Prices'],
-                                                                       opt.iloc[i]['Strike_Price'],
-                                                                       0,
-                                                                       opt.iloc[i]['time_diff']],
-                                                                      volatility=opt.iloc[i]['impliedvolatility']
-                                                                      ).gamma
-            else:
-                opt.iloc[i, opt.columns.get_loc('gamma')] = mibian.BS([opt.iloc[i]['Future_Prices'],
-                                                                       opt.iloc[i]['Strike_Price'],
-                                                                       0,
-                                                                       opt.iloc[i]['time_diff']],
-                                                                      volatility=opt.iloc[i]['impliedvolatility']
-                                                                      ).gamma
+            try:
+                if opt.iloc[i]['Option_Type'] == 'CE':
+                    opt.iloc[i, opt.columns.get_loc('gamma')] = mibian.BS([opt.iloc[i]['Future_Prices'],
+                                                                           opt.iloc[i]['Strike_Price'],
+                                                                           0,
+                                                                           opt.iloc[i]['time_diff']],
+                                                                          volatility=opt.iloc[i]['impliedvolatility']
+                                                                          ).gamma
+                else:
+                    opt.iloc[i, opt.columns.get_loc('gamma')] = mibian.BS([opt.iloc[i]['Future_Prices'],
+                                                                           opt.iloc[i]['Strike_Price'],
+                                                                           0,
+                                                                           opt.iloc[i]['time_diff']],
+                                                                          volatility=opt.iloc[i]['impliedvolatility']
+                                                                          ).gamma
+            except:
+                  print ("Failed to calcualte gamma for row  : {}".format(i))
         return opt
     def theta_options(self, opt):
         opt['theta'] = np.nan
-        # opt = opt.iloc[:3]
+        print("Theta calculation")
         for i in range(0, len(opt)):
-            print(i)
-            if opt.iloc[i]['Option_Type'] == 'CE':
-                opt.iloc[i, opt.columns.get_loc('theta')] = mibian.BS([opt.iloc[i]['Future_Prices'],
-                                                                       opt.iloc[i]['Strike_Price'],
-                                                                       0,
-                                                                       opt.iloc[i]['time_diff']],
-                                                                      volatility=opt.iloc[i]['impliedvolatility']
-                                                                      ).putTheta
-            else:
-                opt.iloc[i, opt.columns.get_loc('theta')] = mibian.BS([opt.iloc[i]['Future_Prices'],
-                                                                       opt.iloc[i]['Strike_Price'],
-                                                                       0,
-                                                                       opt.iloc[i]['time_diff']],
-                                                                      volatility=opt.iloc[i]['impliedvolatility']
-                                                                      ).callTheta
+            try:
+                if opt.iloc[i]['Option_Type'] == 'CE':
+                    opt.iloc[i, opt.columns.get_loc('theta')] = mibian.BS([opt.iloc[i]['Future_Prices'],
+                                                                           opt.iloc[i]['Strike_Price'],
+                                                                           0,
+                                                                           opt.iloc[i]['time_diff']],
+                                                                          volatility=opt.iloc[i]['impliedvolatility']
+                                                                          ).putTheta
+                else:
+                    opt.iloc[i, opt.columns.get_loc('theta')] = mibian.BS([opt.iloc[i]['Future_Prices'],
+                                                                           opt.iloc[i]['Strike_Price'],
+                                                                           0,
+                                                                           opt.iloc[i]['time_diff']],
+                                                                          volatility=opt.iloc[i]['impliedvolatility']
+                                                                          ).callTheta
+            except:
+                print("Failed to calculate theta for row  : {}".format(i))
         return opt
     def vega_options(self, opt):
         opt['vega'] = np.nan
+        print("Vega calculation")
         for i in range(0, len(opt)):
-            print(i)
-            if opt.iloc[i]['Option_Type'] == 'CE':
-                opt.iloc[i, opt.columns.get_loc('vega')] = mibian.BS([opt.iloc[i]['Future_Prices'],
-                                                                       opt.iloc[i]['Strike_Price'],
-                                                                       0,
-                                                                       opt.iloc[i]['time_diff']],
-                                                                      volatility=opt.iloc[i]['impliedvolatility']
-                                                                      ).vega
-            else:
-                opt.iloc[i, opt.columns.get_loc('vega')] = mibian.BS([opt.iloc[i]['Future_Prices'],
-                                                                       opt.iloc[i]['Strike_Price'],
-                                                                       0,
-                                                                       opt.iloc[i]['time_diff']],
-                                                                      volatility=opt.iloc[i]['impliedvolatility']
-                                                                      ).vega
+            try:
+                if opt.iloc[i]['Option_Type'] == 'CE':
+                    opt.iloc[i, opt.columns.get_loc('vega')] = mibian.BS([opt.iloc[i]['Future_Prices'],
+                                                                           opt.iloc[i]['Strike_Price'],
+                                                                           0,
+                                                                           opt.iloc[i]['time_diff']],
+                                                                          volatility=opt.iloc[i]['impliedvolatility']
+                                                                          ).vega
+                else:
+                    opt.iloc[i, opt.columns.get_loc('vega')] = mibian.BS([opt.iloc[i]['Future_Prices'],
+                                                                           opt.iloc[i]['Strike_Price'],
+                                                                           0,
+                                                                           opt.iloc[i]['time_diff']],
+                                                                          volatility=opt.iloc[i]['impliedvolatility']
+                                                                          ).vega
+            except:
+                print("Failed to calculate vega for row  : {}".format(i))
         return opt
 
 def volatility(vol,df_):

@@ -13,9 +13,7 @@ import numpy as np
 import pandas as pd
 import yfinance as yf
 
-desired_width=320
-pd.set_option('display.width', desired_width)
-pd.set_option('display.max_columns',20)
+
 
 class PnLCalculator:
     def __init__(self):
@@ -84,7 +82,6 @@ class MvAverageStrategy:
                 return Tradingsignal, liquidatePosition, deltacal
 
         elif (mv_t1 < mv_t2):
-
             deltacal = (1 + delta) * float(previousClosingPrice)
 
             if (currentPrice < (1 + delta) * previousClosingPrice) :
@@ -96,16 +93,31 @@ class MvAverageStrategy:
                 Tradingsignal = -1
                 liquidatePosition = -1 # Liquidate postion
                 return Tradingsignal, liquidatePosition,deltacal
+        else:
+            return 0, 1, 0
 
 
 class Portfolio:
     def __init__(self, file, T1: int, T2: int, field: str,returnshift,SellMaxPercentChange,SellpriceChangeBarrier,BuyMaxPercentChange,BuypriceChangeBarrier,maxstocks:int,qtylot:int = 50 ,totalcash = 100000,delta =0.02,):
-        self.df_ = pd.read_csv(file, index_col="Date")
-        self.df_.index = pd.to_datetime(self.df_.index)
-        data = yf.download(tickers='INFY.NS', period='3m', interval='5m')
+        self.df_ = pd.read_csv(file)
+        ## yahoo finance trade
+        '''
+        data = yf.download(tickers='SBIN.NS', period='3m', interval='5m')
         data = data[["Open", "High", "Low", "Close", "Adj Close", "Volume"]]
         data = data.reset_index()
-        self.readtime = data['Datetime'].dt.strftime('%Y-%m-%d')
+        '''
+        if "Datetime" in self.df_.columns:
+            print("inside Datetime")
+            self.readtime = data['Datetime'].dt.strftime('%Y-%m-%d')
+            self.df_.Datetime = pd.to_datetime(self.df_.Datetime)
+            self.df_.set_index("Datetime",inplace=True)
+        else:
+            self.readtime = data['Date'].dt.strftime('%Y-%m-%d')
+            self.df_.Datetime = pd.to_datetime(self.df_.Date)
+            self.df_.set_index("Date",inplace=True)
+
+
+        #self.readtime = data['Datetime'].dt.strftime('%Y-%m-%d')
         self.list_columns = ["Date", "Open", "High", "Low", "Close", "Adj Close", "Volume"]
         self.T1 = T1
         self.T2 = T2
@@ -149,7 +161,6 @@ class Portfolio:
         self.tradingPrice = np.NAN
 
         while self.row+1 < len(self.df_):
-
             self.df_['mvAverageStrategy_T1'].iat[self.row+1] = MvAverageStrategy().sma(self.df_.iloc[:self.row]["Daily_Log_Return"], self.T1)
             self.df_['mvAverageStrategy_T2'].iat[self.row+1] = MvAverageStrategy().sma(self.df_.iloc[:self.row]["Daily_Log_Return"], self.T2)
             self.CurrentOpenPrice = self.df_.iloc[self.row].Open
@@ -268,14 +279,16 @@ class Portfolio:
         plt.ylabel("PNL")
         plt.savefig("Cummulative_PNL_maxstocks_" + str(self.maxstocks) + ".png")
         plt.show()
+
 if __name__ == "__main__":
     data = yf.download(tickers='INFY.NS', period='3mo', interval='1d')
     data = data[["Open", "High", "Low", "Close", "Adj Close", "Volume"]]
+    data = data[data["Volume"] != 0]
     data = data.reset_index()
-    data.to_csv("infy_realtime.csv")
+    data.to_csv("realtime.csv")
     data =data.rename(columns = {"index":"Date"})
-    data.to_csv("infy_realtime.csv")
-    data_csv = "infy_realtime.csv"
+    data.to_csv("realtime.csv")
+    data_csv = "realtime.csv"
     '''
     strat1 = Portfolio(file=data_csv, T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000, delta=0.01,
                         maxstocks=500,qtylot=50,BuypriceChangeBarrier=-0.01,BuyMaxPercentChange=0.06,SellpriceChangeBarrier=-0.01,
@@ -285,7 +298,7 @@ if __name__ == "__main__":
     '''
 
     strat2 = Portfolio(file=data_csv, T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000, delta=0.02,
-                        maxstocks=500,qtylot=300,BuypriceChangeBarrier=-0.01,BuyMaxPercentChange=0.04,SellpriceChangeBarrier=-0.01,
+                        maxstocks=300,qtylot=300,BuypriceChangeBarrier=-0.01,BuyMaxPercentChange=0.04,SellpriceChangeBarrier=-0.01,
                        SellMaxPercentChange=0.04)
 
     strat2.mastrategy()
@@ -308,9 +321,5 @@ if __name__ == "__main__":
                        SellMaxPercentChange=0.03)
     strat5.mastrategy()
    '''
-
-
-
-
 
 ## Completed testhkjhnhn

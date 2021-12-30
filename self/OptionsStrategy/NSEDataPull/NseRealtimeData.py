@@ -46,7 +46,6 @@ class nseRealTime():
               Call_ = Call_[list_CE]
               Put_ = Put_[list_PE]
               print("CE--")
-              print("--------------------------")
               for i in Call_.columns:
                      Call_.rename( columns= {i: str(i).replace("CE.","")},inplace = True)
 
@@ -79,8 +78,34 @@ class nseRealTime():
 
               return df_callPut
 
+
+       def OptionChainRatios(self,ticker,instrument,option_expiry):
+              ns_  = nse.get_quote(ticker,Segment.OPT,option_expiry)
+              df_ = nse.option_chain(ticker,option_expiry)
+              df_["Symbol"] = ticker
+              df_["INSTRUMENT"] = instrument
+              from datetime import datetime
+              dateTimeObj = datetime.now()
+              today = dateTimeObj.strftime("%d-%m-%Y %H:%M:%S")
+              print("Date_ {}".format(today))
+              df_["Date"] = today
+              df_["Date"] = pd.to_datetime(df_["Date"])
+              print(df_.columns)
+              df_["CE.net_qty"] = df_["CE.totalSellQuantity"] - df_["CE.totalBuyQuantity"]
+              df_["PE.net_qty"] = df_["PE.totalSellQuantity"] - df_["PE.totalBuyQuantity"]
+              df_["PCR_OI"] =  df_["PE.openInterest"] / df_["CE.openInterest"]
+              df_["PCR_vol"] = df_["PE.openInterest"] / df_["CE.openInterest"]
+              print("outut -----")
+              print( df_.columns)
+              return df_.dropna()
+
+
+
 if __name__ == "__main__":
 
+       print(nse.market_status())
+
+       """
        ''' Stock Real time data'''
        print("Stock Real Time Data ")
        stock_ = nseRealTime().stock("INFY")
@@ -96,7 +121,7 @@ if __name__ == "__main__":
 
 
        '''Option Chain  Real time data '''
-       print("ption Chain  Real time data of specific expiry")
+       print("option Chain  Real time data of specific expiry")
        RealTimeOption = nseRealTime().OptionChain("NIFTY",option_expiry=datetime.date(2021, 12, 30),instrument="OPIDX")
        print("RealTimeOption")
        print(RealTimeOption.columns)
@@ -109,3 +134,9 @@ if __name__ == "__main__":
        print("Future Real Time Data")
        Future_ = nseRealTime().Future('INFY', segment=Segment.FUT, expiry=dt.date(2021,12,30))
        print(pd.DataFrame.from_dict(Future_))
+       """
+
+
+       """Option Chain - Ratios """
+       OptionChainRatios =  RealTimeOption = nseRealTime().OptionChainRatios("NIFTY",option_expiry=datetime.date(2021, 12, 30),instrument="OPIDX")
+       print(pd.DataFrame.from_dict(OptionChainRatios))

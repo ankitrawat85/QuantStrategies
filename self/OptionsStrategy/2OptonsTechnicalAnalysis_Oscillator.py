@@ -33,7 +33,7 @@ pd.set_option('display.width', desired_width)
 pd.set_option('display.max_columns',30)
 
 #df  = yf.download(tickers='INFY.NS', period='3mo', interval='1d')
-df  = yf.download(tickers='INFY.NS', period='1mo', interval='2m')
+df  = yf.download(tickers='ESCORTS.NS', period='1mo', interval='2m')
 df  = df [["Open", "High", "Low", "Close", "Adj Close", "Volume"]]
 df  = df .reset_index()
 df  = df .rename(columns={"Datetime": "Date"})
@@ -125,7 +125,7 @@ def recognize_candlestick(df):
 
     return df
 output_ = recognize_candlestick(df)
-print(output_[["Open","High","Low","Close","Adj Close","Volume","candlestick_pattern","candlestick_match_count"]].tail(5))
+print(output_[["Open","High","Low","Close","Adj Close","Volume","candlestick_pattern","candlestick_match_count"]].tail(10))
 output_.to_csv("technicalIndicators.csv")
 
 temp_output = output_[["Open","High","Low","Close","Adj Close","Volume","candlestick_pattern","candlestick_match_count"]]
