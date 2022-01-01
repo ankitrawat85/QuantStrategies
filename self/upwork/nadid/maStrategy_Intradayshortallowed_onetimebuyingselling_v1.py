@@ -12,7 +12,10 @@ import pandas as pd
 import numpy as np
 import pandas as pd
 import yfinance as yf
-
+desired_width=320
+pd.set_option('display.width', desired_width)
+pd.set_option('display.max_columns',30)
+pd.set_option('display.max_rows',2000)
 
 
 class PnLCalculator:
@@ -267,11 +270,13 @@ class Portfolio:
         df_pnl = pd.merge(self.df_, pnl, how='inner', left_index=True, right_index=True)
         pnldf_pnl = df_pnl.drop("Daily_Log_Return",axis =1 )
         pnl = df_pnl[["Realised_PNL","MTM"]].tail(1)
-        print ( "Total PNL on last Date : {} ".format(pnl.sum(axis=1)))
+
 
         df_pnl.to_csv("masterFileGenerated.csv")
-        print(df_pnl.columns)
-        print(df_pnl[["Open","High","Low","Close","trading_signal" ,"liquidatePosition","Position","Realised_PNL"]].tail(5))
+        #print(df_pnl.columns)
+        #print(df_pnl[["Open","High","Low","Close","trading_signal" ,"liquidatePosition","Position","Realised_PNL"]].tail(5))
+        print("Total PNL on last Date : {} ".format(pnl.sum(axis=1)))
+        print("Total number of transactions :  {} ".format(len(df_pnl)))
         df_pnl["Realised_PNL"].to_csv("Realised_PNL.csv")
         df_pnl[["Realised_PNL"]].plot()
         plt.title("Cummulative_PNL_maxstocks_"+ str(self.maxstocks))
@@ -281,7 +286,7 @@ class Portfolio:
         plt.show()
 
 if __name__ == "__main__":
-    data = yf.download(tickers='INFY.NS', period='3mo', interval='1d')
+    data = yf.download(tickers='INFY.NS', period='1wk', interval='1m', progress=False)
     data = data[["Open", "High", "Low", "Close", "Adj Close", "Volume"]]
     data = data[data["Volume"] != 0]
     data = data.reset_index()
@@ -297,11 +302,28 @@ if __name__ == "__main__":
     strat1.mastrategy()
     '''
 
+    ## Daily Strategy - Working
+
     strat2 = Portfolio(file=data_csv, T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000, delta=0.02,
                         maxstocks=300,qtylot=300,BuypriceChangeBarrier=-0.01,BuyMaxPercentChange=0.04,SellpriceChangeBarrier=-0.01,
                        SellMaxPercentChange=0.04)
 
     strat2.mastrategy()
+
+    '''
+    ## intraday strategy - working
+    #info_ = pd.DataFrame(columns={"BuypriceChangeBarrier,delta,txn,"})
+    for i in np.arange(-0.001,-0.01,-0.001):
+        print("******Start***************************")
+        print("Value of BuypriceChangeBarrier :  {} ".format(i))
+        for Delta in np.arange(0.02,0.0001,-0.001):
+            print("Value of Delta :  {} ".format(Delta))
+            intradayStrategy = Portfolio(file=data_csv, T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000, delta=Delta,
+                                maxstocks=200,qtylot=200,BuypriceChangeBarrier=i,BuyMaxPercentChange=0.03,SellpriceChangeBarrier=-0.001,
+                               SellMaxPercentChange=0.03)
+            intradayStrategy.mastrategy()
+    '''
+
     '''
     strat3 = Portfolio(file=data_csv, T1=10, T2=20, field="Close", returnshift=1, totalcash=10000000, delta=0.02,
                         maxstocks=100,qtylot=50,BuypriceChangeBarrier=-0.01,BuyMaxPercentChange=0.06,SellpriceChangeBarrier=-0.01,
@@ -322,4 +344,4 @@ if __name__ == "__main__":
     strat5.mastrategy()
    '''
 
-## Completed testhkjhnhn
+## Completed

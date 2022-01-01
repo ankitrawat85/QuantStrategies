@@ -177,9 +177,9 @@ class database:
 
 
 
-def trigger():
+def trigger(database,ticker,expiry,instrument):
         ## SQL Steps
-        instance = database(database="NSEStockData.db")
+        instance = database(database=database)
         ## Create Database
         instance.CreatDatabase()
 
@@ -188,12 +188,11 @@ def trigger():
         ## Create Table
         instance.CreatTable(conn, createtablescripts().sql_create_optionchain_table)
         ## Create Insert Data
-        RealTimeOption = nseRealTime().OptionChain("INFY", option_expiry=date(2021, 12, 30),instrument="OPIDX")
+        RealTimeOption = nseRealTime().OptionChain(ticker, option_expiry=expiry,instrument=instrument)
         RealTimeOption = RealTimeOption[RealTimeOption["OPEN_INT"] != 0]
         RealTimeOption = RealTimeOption.dropna(axis=0)
         data_ = RealTimeOption
         data_ = data_.rename(columns = {"Strike Price" : "Strike_Price","Future Prices":"Future_Prices","Option Type":"Option_Type"})
-
 
         ##  Volatility and Greeks calculation
         data_["time_diff"] = optionsGreeks().time_to_expiry(data_[["Expiry", "Date"]])["time_diff"]
@@ -224,8 +223,6 @@ def trigger():
                 "vega"]
 
         #
-        print(data_.columns)
-
         data_["Date"] = data_["Date"].astype('object')
         # data_ = data_.drop('Date',axis =1)
         datetemp = str(data_.iat[0, 23])
@@ -239,29 +236,34 @@ def trigger():
         for i in range(0,len(task1)):
             instance.insertOptionChain(conn,task1[i])
 
-
+        '''
         ## select Statement
-        instance = database(database="StockTrading9.db")
+        instance = database(database=""NSEStockData.db")
         #conn = instance.create_connection()
         ## Create Database
         df = pd.read_sql_query("select Date,Expiry,Strike_Price,identifier,Open_int,lib_impliedVolatility,impliedvolatility,Delta,Gamma,Theta,Vega,Option_Type,time_diff,Future_Prices,Close FROM optionchain", conn)
         print(df)
+        '''
 
 
-def OptionChainRatios():
+def OptionChainRatios(ticker,expiry,instrument,db):
+    print("Fetching Data ")
+    print(ticker,expiry,instrument,db)
     ## SQL Steps
-    instance = database(database="NSEStockData.db")
+    instance = database(database=db)
+    print("1")
     ## Create Database
     instance.CreatDatabase()
-
+    print("2")
     ## Create Connection
     conn = instance.create_connection()
     ## Create Table
     instance.CreatTable(conn, createtablescripts().sql_create_optionchainratios_table)
-
+    print("3")
     ## Create Insert Data
-    RealTimeOption = nseRealTime().OptionChainRatios("NIFTY", option_expiry=date(2021, 12, 30), instrument="OPIDX")
-
+    print(ticker, expiry, instrument)
+    RealTimeOption = nseRealTime().OptionChainRatios(ticker, option_expiry=date(2022,1,6), instrument=instrument)
+    print(RealTimeOption)
     RealTimeOption["Date"] = RealTimeOption["Date"].astype('object')
     # data_ = data_.drop('Date',axis =1)
     datetemp = str(RealTimeOption.iat[0, 42])
@@ -276,3 +278,4 @@ def OptionChainRatios():
         print("Inserting Data {}".format(i))
         instance.insertOptionChainRatios(conn, RealTimeOption[i])
 
+    print("Insert Completed")

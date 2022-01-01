@@ -81,6 +81,7 @@ class nseRealTime():
 
        def OptionChainRatios(self,ticker,instrument,option_expiry):
               ns_  = nse.get_quote(ticker,Segment.OPT,option_expiry)
+              print(ticker,option_expiry)
               df_ = nse.option_chain(ticker,option_expiry)
               df_["Symbol"] = ticker
               df_["INSTRUMENT"] = instrument
@@ -94,7 +95,7 @@ class nseRealTime():
               df_["CE.net_qty"] = df_["CE.totalSellQuantity"] - df_["CE.totalBuyQuantity"]
               df_["PE.net_qty"] = df_["PE.totalSellQuantity"] - df_["PE.totalBuyQuantity"]
               df_["PCR_OI"] =  df_["PE.openInterest"] / df_["CE.openInterest"]
-              df_["PCR_vol"] = df_["PE.openInterest"] / df_["CE.openInterest"]
+              df_["PCR_vol"] = df_["PE.totalTradedVolume"] / df_["CE.totalTradedVolume"]
               print("outut -----")
               print( df_.columns)
               return df_.dropna()
