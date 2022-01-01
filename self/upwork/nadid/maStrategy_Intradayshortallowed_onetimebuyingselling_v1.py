@@ -284,6 +284,7 @@ class Portfolio:
         plt.ylabel("PNL")
         plt.savefig("Cummulative_PNL_maxstocks_" + str(self.maxstocks) + ".png")
         plt.show()
+        return df_pnl
 
 if __name__ == "__main__":
     data = yf.download(tickers='INFY.NS', period='1wk', interval='1m', progress=False)
@@ -303,14 +304,22 @@ if __name__ == "__main__":
     '''
 
     ## Daily Strategy - Working
-
+    '''
     strat2 = Portfolio(file=data_csv, T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000, delta=0.02,
                         maxstocks=300,qtylot=300,BuypriceChangeBarrier=-0.01,BuyMaxPercentChange=0.04,SellpriceChangeBarrier=-0.01,
                        SellMaxPercentChange=0.04)
 
     strat2.mastrategy()
-
     '''
+    intradayStrategy = Portfolio(file=data_csv, T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000,
+                                         delta=0.005,
+                                         maxstocks=200, qtylot=200, BuypriceChangeBarrier=-0.0001, BuyMaxPercentChange=0.03,
+                                         SellpriceChangeBarrier=-0.001,
+                                         SellMaxPercentChange=0.03)
+    output_ = intradayStrategy.mastrategy()
+    print("total number of tranactions :  {}".format(len(output_[output_["Stock_BUY_Sell"] != 0])))
+
+    ''''
     ## intraday strategy - working
     #info_ = pd.DataFrame(columns={"BuypriceChangeBarrier,delta,txn,"})
     for i in np.arange(-0.001,-0.01,-0.001):
@@ -322,6 +331,7 @@ if __name__ == "__main__":
                                 maxstocks=200,qtylot=200,BuypriceChangeBarrier=i,BuyMaxPercentChange=0.03,SellpriceChangeBarrier=-0.001,
                                SellMaxPercentChange=0.03)
             intradayStrategy.mastrategy()
+            
     '''
 
     '''

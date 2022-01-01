@@ -4,6 +4,7 @@ import time
 import numpy as np
 
 from binomial import *
+import numpy
 
 class KnockInOption():
     def __init__(self, downBarrier, upBarrier, barrierStart, barrierEnd, underlyingOption):

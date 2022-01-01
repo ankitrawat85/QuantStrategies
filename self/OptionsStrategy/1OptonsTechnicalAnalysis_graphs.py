@@ -32,7 +32,7 @@ cf.go_offline()
 
 ## Download Data
 TICKER = "INFY.NS"
-df  = yf.download(tickers='INFY.NS', period='3mo', interval='1d')
+df  = yf.download(tickers='INFY.NS', period='1mo', interval='5m')
 df  = df [["Open", "High", "Low", "Close", "Adj Close", "Volume"]]
 df  = df .reset_index()
 df  = df .rename(columns={"Datetime": "Date"})
@@ -64,7 +64,6 @@ plt.plot(df['RSI_14_B_40_price'],label='RSI_14_A_40_price')
 plt.title(" RSI Indicator Price")
 plt.legend()
 plt.show()
-
 ## RSI Indicator Volume
 df.ta.rsi(close='Volume', length=14, append=True, signal_indicators=True, xa=60, xb=40)
 df = df.rename(columns = { "RSI_14": "RSI_14_Volume", "RSI_14_A_60":"RSI_14_A_60_Volume","RSI_14_B_40":"RSI_14_B_40_Volume"})
@@ -88,8 +87,8 @@ plt.show()
 The first type of Signal Line Crossover to examine is the Bullish Signal Line Crossover. Bullish Signal Line Crossovers occur when the MACD Line crosses above the Signal Line.
 The second type of Signal Line Crossover to examine is the Bearish Signal Line Crossover. Bearish Signal Line Crossovers occur when the MACD Line crosses below the Signal Line.
 '''
-df["macdsignal"] = df.apply(lambda x: "Bullish" if x["macd"] > x["macd9"] else "Bearish",axis=1)
-df["BBMsignal"] =  df.apply(lambda x : "Sell" if x["Adj Close"] > x["bb_bbh"] else ( "Buy" if x["Adj Close"] < x["bb_bbl"] else "Neutral") ,axis =1)
+df["macdsignal"] =  df.apply(lambda x: "Bullish" if x["macd"] > x["macd9"] else "Bearish",axis=1)
+df["BBMsignal"] = df.apply(lambda x : "Sell" if x["Adj Close"] > x["bb_bbh"] else ( "Buy" if x["Adj Close"] < x["bb_bbl"] else "Neutral") ,axis =1)
 df["BBP_Signal"] = df.apply(lambda x :"Sell" if (x["bbp"] > 1 and (x["RSI_14_A_60_price"] > 0) ) else ( "Buy" if x["bbp"] < 0 and (x["RSI_14_B_40_price"] > 0) else "No Signal") ,axis =1)
 
 df = df.dropna()
