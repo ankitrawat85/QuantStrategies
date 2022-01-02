@@ -276,7 +276,6 @@ class Portfolio:
         #print(df_pnl.columns)
         #print(df_pnl[["Open","High","Low","Close","trading_signal" ,"liquidatePosition","Position","Realised_PNL"]].tail(5))
         print("Total PNL on last Date : {} ".format(pnl.sum(axis=1)))
-        print("Total number of transactions :  {} ".format(len(df_pnl)))
         df_pnl["Realised_PNL"].to_csv("Realised_PNL.csv")
         df_pnl[["Realised_PNL"]].plot()
         plt.title("Cummulative_PNL_maxstocks_"+ str(self.maxstocks))
@@ -311,28 +310,31 @@ if __name__ == "__main__":
 
     strat2.mastrategy()
     '''
-    intradayStrategy = Portfolio(file=data_csv, T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000,
-                                         delta=0.005,
-                                         maxstocks=200, qtylot=200, BuypriceChangeBarrier=-0.0001, BuyMaxPercentChange=0.03,
-                                         SellpriceChangeBarrier=-0.001,
-                                         SellMaxPercentChange=0.03)
-    output_ = intradayStrategy.mastrategy()
-    print("total number of tranactions :  {}".format(len(output_[output_["Stock_BUY_Sell"] != 0])))
-
-    ''''
-    ## intraday strategy - working
-    #info_ = pd.DataFrame(columns={"BuypriceChangeBarrier,delta,txn,"})
-    for i in np.arange(-0.001,-0.01,-0.001):
-        print("******Start***************************")
-        print("Value of BuypriceChangeBarrier :  {} ".format(i))
-        for Delta in np.arange(0.02,0.0001,-0.001):
-            print("Value of Delta :  {} ".format(Delta))
-            intradayStrategy = Portfolio(file=data_csv, T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000, delta=Delta,
-                                maxstocks=200,qtylot=200,BuypriceChangeBarrier=i,BuyMaxPercentChange=0.03,SellpriceChangeBarrier=-0.001,
-                               SellMaxPercentChange=0.03)
-            intradayStrategy.mastrategy()
-            
     '''
+    Sample with output 25 k 
+      intradayStrategy = Portfolio(file=data_csv, T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000,
+                                                 delta=0.005,
+                                                 maxstocks=200, qtylot=200, BuypriceChangeBarrier=BuypriceChangeBarrier, BuyMaxPercentChange=0.03,
+                                                 SellpriceChangeBarrier=-0.001,
+                                                 SellMaxPercentChange=0.03)
+    
+    
+    '''
+
+    for BuypriceChangeBarrier in np.arange(-0.0001, -0.1, -0.001):
+        SellpriceChangeBarrier= BuypriceChangeBarrier
+        for delta in  np.arange(0.02,0.005,-0.001):
+            print("Value of BuypriceChangeBarrier {} and delta  :  {} ".format(BuypriceChangeBarrier,delta))
+            intradayStrategy = Portfolio(file=data_csv, T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000,
+                                                 delta=delta,
+                                                 maxstocks=200, qtylot=200, BuypriceChangeBarrier=BuypriceChangeBarrier, BuyMaxPercentChange=0.03,
+                                                 SellpriceChangeBarrier=SellpriceChangeBarrier,
+                                                 SellMaxPercentChange=0.03)
+            output_ = intradayStrategy.mastrategy()
+            print("total number of tranactions :  {}".format(len(output_[output_["Stock_BUY_Sell"] != 0])))
+            print("Total Brokerage  :  {}".format(len(output_[output_["Stock_BUY_Sell"] != 0]) * 47.20 ))
+
+
 
     '''
     strat3 = Portfolio(file=data_csv, T1=10, T2=20, field="Close", returnshift=1, totalcash=10000000, delta=0.02,
