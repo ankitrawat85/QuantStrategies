@@ -334,7 +334,7 @@ if __name__ == "__main__":
             print("total number of tranactions :  {}".format(len(output_[output_["Stock_BUY_Sell"] != 0])))
             print("Total Brokerage  :  {}".format(len(output_[output_["Stock_BUY_Sell"] != 0]) * 47.20 ))
 
-
+    print("hello")
 
     '''
     strat3 = Portfolio(file=data_csv, T1=10, T2=20, field="Close", returnshift=1, totalcash=10000000, delta=0.02,
