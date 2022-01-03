@@ -286,7 +286,7 @@ class Portfolio:
         return df_pnl
 
 if __name__ == "__main__":
-    data = yf.download(tickers='INFY.NS', period='1wk', interval='1m', progress=False)
+    data = yf.download(tickers='INFY.NS', period='3mo', interval='1d', progress=False)
     data = data[["Open", "High", "Low", "Close", "Adj Close", "Volume"]]
     data = data[data["Volume"] != 0]
     data = data.reset_index()
@@ -310,17 +310,25 @@ if __name__ == "__main__":
 
     strat2.mastrategy()
     '''
-    '''
-    Sample with output 25 k 
-      intradayStrategy = Portfolio(file=data_csv, T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000,
+    """
+    intradayStrategy = Portfolio(file=data_csv, T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000,
                                                  delta=0.005,
-                                                 maxstocks=200, qtylot=200, BuypriceChangeBarrier=BuypriceChangeBarrier, BuyMaxPercentChange=0.03,
+                                                 maxstocks=200, qtylot=200, BuypriceChangeBarrier=-0.001, BuyMaxPercentChange=0.03,
                                                  SellpriceChangeBarrier=-0.001,
                                                  SellMaxPercentChange=0.03)
-    
-    
-    '''
+    """
+    print(data)
+    intradayStrategy = Portfolio(file=data_csv, T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000,
+                                 delta=0.005,
+                                 maxstocks=200, qtylot=200, BuypriceChangeBarrier=-0.001,
+                                 BuyMaxPercentChange=0.03,
+                                 SellpriceChangeBarrier=-0.001,
+                                 SellMaxPercentChange=0.03)
+    output_ = intradayStrategy.mastrategy()
+    print("total number of tranactions :  {}".format(len(output_[output_["Stock_BUY_Sell"] != 0])))
+    print("Total Brokerage  :  {}".format(len(output_[output_["Stock_BUY_Sell"] != 0]) * 47.20))
 
+    '''
     for BuypriceChangeBarrier in np.arange(-0.0001, -0.1, -0.001):
         SellpriceChangeBarrier= BuypriceChangeBarrier
         for delta in  np.arange(0.02,0.005,-0.001):
@@ -335,6 +343,7 @@ if __name__ == "__main__":
             print("Total Brokerage  :  {}".format(len(output_[output_["Stock_BUY_Sell"] != 0]) * 47.20 ))
 
     print("hello")
+    '''
 
     '''
     strat3 = Portfolio(file=data_csv, T1=10, T2=20, field="Close", returnshift=1, totalcash=10000000, delta=0.02,

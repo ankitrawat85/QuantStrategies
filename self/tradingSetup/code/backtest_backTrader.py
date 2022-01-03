@@ -7,7 +7,16 @@ import backtrader.analyzers as btanalyzer
 from  self.tradingSetup.Strategy.BBand_Strategy import BBand_Strategy
 from  self.tradingSetup.Strategy.SmaStrategy import SmaSignal
 from  self.tradingSetup.Strategy.Rsi import RsiSignalStrategy
+from  self.tradingSetup.Strategy.mvav import mvav
+from  self.tradingSetup.Strategy.MvAverageStrategy import MvAverageStrategy
+from btplotting import BacktraderPlottingLive
+from btplotting.schemes import Tradimo
 import datetime
+desired_width=320
+pd.set_option('display.width', desired_width)
+pd.set_option('display.max_columns',30)
+pd.set_option('display.max_rows',2000)
+
 class backtestBackTrader():
     ## Create instance
     def __init__(self):
@@ -15,9 +24,9 @@ class backtestBackTrader():
 
     def BackTrader(self,data,brokercash,strategy):
         cerebro = bt.Cerebro(stdstats=False, cheat_on_open=True)
-        cerebro.addstrategy(BBand_Strategy)
+        cerebro.addstrategy(mvav)
         cerebro.adddata(data)
-        cerebro.broker.setcash(10000000000.0)
+        cerebro.broker.setcash(1000000.0)
         cerebro.broker.setcommission(commission=0.001)
         cerebro.addobserver(bt.observers.BuySell)
         cerebro.addobserver(bt.observers.Value)
@@ -27,6 +36,7 @@ class backtestBackTrader():
         cerebro.addanalyzer(btanalyzer.SharpeRatio, _name="sharpe")
         cerebro.addanalyzer(btanalyzer.Transactions, _name="tran")
         cerebro.addanalyzer(btanalyzer.TradeAnalyzer, _name="Trade")
+        cerebro.addanalyzer(BacktraderPlottingLive, address="*", port=8888)
 
         print('Starting Portfolio Value: %.2f' % cerebro.broker.getvalue())
         backtest_result = cerebro.run()
@@ -44,14 +54,21 @@ class backtestBackTrader():
 
 if __name__ == "__main__":
     data = bt.feeds.YahooFinanceData(
-        dataname='AAPL',
+        dataname='INFY.NS',
         fromdate=datetime.datetime(2020, 1, 1),
         todate=datetime.datetime(2021, 12, 31)
     )
-    df = yf.download('^NSEI',
+    df = yf.download('INFY.NS',
+                     start='2021-01-10',
+                     end='2021-12-31',
+                     progress=False)
+
+    df = yf.download('INFY.NS',
                      start='2021-01-01',
                      end='2021-12-31',
                      progress=False)
-    df.rename(columns= {"Open":"Open","High":"high","Low":"low","Close":"close","Volume":"volume"}, inplace= True)
+
+    df.rename(columns= {"Open":"open","High":"high","Low":"low","Close":"close","Volume":"volume"}, inplace= True)
     data1 = bt.feeds.PandasData(dataname=df)
-    backtestBackTrader().BackTrader(data = data1,brokercash = 100000000,strategy=RsiSignalStrategy)
+    backtestBackTrader().BackTrader(data = data1,brokercash = 100000,strategy=RsiSignalStrategy)
+    #backtestBackTrader().BackTrader(data=data1, brokercash=100000000, strategy=MvAverageStrategy)
