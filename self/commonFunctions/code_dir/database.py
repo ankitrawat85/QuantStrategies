@@ -177,18 +177,21 @@ class database:
 
 
 
-def trigger(database,ticker,expiry,instrument):
+def trigger(db,ticker,expiry,instrument):
         ## SQL Steps
-        instance = database(database=database)
+
+        print("1")
+        instance = database(database='NSEStockData.db')
         ## Create Database
         instance.CreatDatabase()
-
+        print("2")
         ## Create Connection
         conn = instance.create_connection()
         ## Create Table
+        print("five")
         instance.CreatTable(conn, createtablescripts().sql_create_optionchain_table)
         ## Create Insert Data
-        RealTimeOption = nseRealTime().OptionChain(ticker, option_expiry=expiry,instrument=instrument)
+        RealTimeOption = nseRealTime().OptionChain(ticker, option_expiry=date(2022,1,6),instrument=instrument)
         RealTimeOption = RealTimeOption[RealTimeOption["OPEN_INT"] != 0]
         RealTimeOption = RealTimeOption.dropna(axis=0)
         data_ = RealTimeOption
@@ -196,30 +199,29 @@ def trigger(database,ticker,expiry,instrument):
 
         ##  Volatility and Greeks calculation
         data_["time_diff"] = optionsGreeks().time_to_expiry(data_[["Expiry", "Date"]])["time_diff"]
-        data_["impliedvolatility"] = \
-            optionsGreeks().implied_volatility_options(
-                data_[["Strike_Price", "Future_Prices", "Close", "time_diff", "Option_Type"]])[
-                "impliedvolatility"]
-
-
+        print("Data----->")
+        print(data_.head(10))
+        #data_["impliedvolatility"] = data_["lib_impliedvolatility"]
+        print("Output------>")
+        ##data_["impliedvolatility"] = optionsGreeks().implied_volatility_options(data_[["Strike_Price", "Future_Prices", "Close", "time_diff", "Option_Type"]])["impliedvolatility"]
         data_["Delta"] = \
             optionsGreeks().delta_options(
-                data_[["Strike_Price", "Future_Prices", "Close", "time_diff", "Option_Type", "impliedvolatility"]])[
+                data_[["Strike_Price", "Future_Prices", "Close", "time_diff", "Option_Type", "lib_impliedVolatility"]])[
                 "delta"]
 
         data_["Gamma"] = \
             optionsGreeks().gamma_options(
-                data_[["Strike_Price", "Future_Prices", "Close", "time_diff", "Option_Type", "impliedvolatility", "Delta"]])[
+                data_[["Strike_Price", "Future_Prices", "Close", "time_diff", "Option_Type", "lib_impliedVolatility", "Delta"]])[
                 "gamma"]
 
         data_["Theta"] = \
             optionsGreeks().theta_options(
-                data_[["Strike_Price", "Future_Prices", "Close", "time_diff", "Option_Type", "impliedvolatility"]])[
+                data_[["Strike_Price", "Future_Prices", "Close", "time_diff", "Option_Type", "lib_impliedVolatility"]])[
                 "theta"]
 
         data_["Vega"] = \
             optionsGreeks().vega_options(
-                data_[["Strike_Price", "Future_Prices", "Close", "time_diff", "Option_Type", "impliedvolatility"]])[
+                data_[["Strike_Price", "Future_Prices", "Close", "time_diff", "Option_Type", "lib_impliedVolatility"]])[
                 "vega"]
 
         #
