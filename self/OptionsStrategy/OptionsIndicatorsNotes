@@ -14,3 +14,40 @@ when the MACD crosses below the signal line.
  Nifty 17050 - ATM : put - Check Open Interest :  Sell Put Greater than sell Call hence expiry will be above 17050
 
  17050 max put writers hence might will see high
+
+ RSI :
+ Uptrend :  40 -80
+ Strong Uptrend - 60-80
+ Downtrend 60-20
+ Strong Downtrend 40-20
+ SIdeways -40-60
+ --
+ grad - weekly
+ daily - father
+ hourly son
+ --
+MOnthly, weekly, Daily
+
+ Monthly  (  ) // Weekly (  ) / Daily ( daily hours 15 minut ) (15,5,1)
+ ##
+ 1. Momentum
+ 2. Volatilty - BBBands , PCR ration
+ 3. Sentiments
+ 4. Price
+ 5.Time Analysis
+ 6.Pattern
+ 7.Volume
+
+ # RSI --
+Different time units such as monthly,weekly, daily, 60-minute, 30-minute and 5-minute bars.
+When day trading, there are three dominant timeframes that have a crucial influence: the big timeframe (daily chart),
+the intermediate timeframe (30-minute chart), and the short­ term timeframe (5-minute chart).
+When position trading, the three dominant timeframes are daily, weekly and monthly.
+-
+In this example, if we were I -minute timeframe traders using the I 5-minute chart for confirmation, we would be able to find multiple entry points on the I-minute chart on the right.
+The I5-minute chart on the left serves as a trend confirmation tool.
+Rule #1
+ In an uptrend, the RSI finds resistance at 80 and support at 40.
+2. In a downtrend, the RSI finds resistance at 60 and support at 20.
+sing the 80/40 and 60/20 range rules, we can instantly identify the trend the majority of the time. If the RSI is staying within the 80/40 ranges, we know that the trend is up, and the majority of the "other" traders are also looking at this same time frame.
+If the RSI is staying within the 60/20 ranges, we know that the Bears are in control and the trend is down.

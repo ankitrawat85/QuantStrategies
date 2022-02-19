@@ -1,0 +1,2 @@
+,RSI_long,RSI_short,profit_mult,devfactor,Sell_stop_loss,profit_mult,return,drawdown,sharpe,total_open,total_closed,total_won,total_lost,strike_rate,win_streak,lose_streak,pnl_net
+0,20,8,2,0.02,0.01,2,0.1831312012936993,0.04591860812078028,,1,6,3,3,50.0,2,2,27754.07

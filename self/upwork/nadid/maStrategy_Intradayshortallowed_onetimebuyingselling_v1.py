@@ -17,6 +17,7 @@ pd.set_option('display.width', desired_width)
 pd.set_option('display.max_columns',30)
 pd.set_option('display.max_rows',2000)
 
+from  self.fivepaisa.connect import *
 
 class PnLCalculator:
     def __init__(self):
@@ -104,11 +105,6 @@ class Portfolio:
     def __init__(self, file, T1: int, T2: int, field: str,returnshift,SellMaxPercentChange,SellpriceChangeBarrier,BuyMaxPercentChange,BuypriceChangeBarrier,maxstocks:int,qtylot:int = 50 ,totalcash = 100000,delta =0.02,):
         self.df_ = pd.read_csv(file)
         ## yahoo finance trade
-        '''
-        data = yf.download(tickers='SBIN.NS', period='3m', interval='5m')
-        data = data[["Open", "High", "Low", "Close", "Adj Close", "Volume"]]
-        data = data.reset_index()
-        '''
         if "Datetime" in self.df_.columns:
             print("inside Datetime")
             self.readtime = data['Datetime'].dt.strftime('%Y-%m-%d')
@@ -121,7 +117,8 @@ class Portfolio:
 
 
         #self.readtime = data['Datetime'].dt.strftime('%Y-%m-%d')
-        self.list_columns = ["Date", "Open", "High", "Low", "Close", "Adj Close", "Volume"]
+        #self.list_columns = ["Date", "Open", "High", "Low", "Close", "Adj Close", "Volume"]
+        self.list_columns = ["Date", "Open", "High", "Low", "Close","Volume"]
         self.T1 = T1
         self.T2 = T2
         self.field = field
@@ -294,13 +291,6 @@ if __name__ == "__main__":
     data =data.rename(columns = {"index":"Date"})
     data.to_csv("realtime.csv")
     data_csv = "realtime.csv"
-    '''
-    strat1 = Portfolio(file=data_csv, T1=10, T2=30, field="Close", returnshift=1, totalcash=10000000, delta=0.01,
-                        maxstocks=500,qtylot=50,BuypriceChangeBarrier=-0.01,BuyMaxPercentChange=0.06,SellpriceChangeBarrier=-0.01,
-                       SellMaxPercentChange=0.06)
-
-    strat1.mastrategy()
-    '''
 
     ## Daily Strategy - Working
     '''
@@ -345,24 +335,5 @@ if __name__ == "__main__":
     print("hello")
     '''
 
-    '''
-    strat3 = Portfolio(file=data_csv, T1=10, T2=20, field="Close", returnshift=1, totalcash=10000000, delta=0.02,
-                        maxstocks=100,qtylot=50,BuypriceChangeBarrier=-0.01,BuyMaxPercentChange=0.06,SellpriceChangeBarrier=-0.01,
-                       SellMaxPercentChange=0.06)
-
-    strat3.mastrategy()
-
-    strat4 = Portfolio(file=data_csv, T1=10, T2=20, field="Close", returnshift=1, totalcash=10000000, delta=0.02,
-                        maxstocks=100,qtylot=50,BuypriceChangeBarrier=-0.01,BuyMaxPercentChange=0.02,SellpriceChangeBarrier=-0.01,
-                       SellMaxPercentChange=0.04)
-
-    strat4.mastrategy()
-
-
-    strat5 = Portfolio(file=data_csv, T1=10, T2=20, field="Close", returnshift=1, totalcash=10000000, delta=0.03,
-                        maxstocks=100,qtylot=50,BuypriceChangeBarrier=-0.01,BuyMaxPercentChange=0.03,SellpriceChangeBarrier=-0.01,
-                       SellMaxPercentChange=0.03)
-    strat5.mastrategy()
-   '''
 
 ## Completed

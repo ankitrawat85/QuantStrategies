@@ -65,19 +65,19 @@ class OptionsStrategiesPayoff:
     def longstrandle(self,kwargs):
         print("** Strategy -longstrandle : uncertain : LONG Call  and Long Put of same Strike Price")
         maxLoss =  kwargs["ATMStrikeCE"] + kwargs["ATMStrikePE"]
-        print(" maxprofit - ATM :  {} and  maxLoss  : unlimited ".format(maxLoss))
-        print(" maxprofit  - OTM :  {} and  maxLoss : unlimited ".format( kwargs["OTMStrikeCE"] + kwargs["OTMStrikePE"] ))
-        print(" maxprofit  -ITM :  {} and  maxLoss : unlimited ".format( kwargs["ITMStrikeCE"] + kwargs["ITMStrikePE"]))
+        print(" maxLoss - ATM :  {} and  maxprofit  : unlimited ".format(maxLoss))
+        print(" maxLoss  - OTM :  {} and  maxprofit : unlimited ".format( kwargs["OTMStrikeCE"] + kwargs["OTMStrikePE"] ))
+        print(" maxLoss  -ITM :  {} and  maxprofit : unlimited ".format( kwargs["ITMStrikeCE"] + kwargs["ITMStrikePE"]))
 
 
 
 
     def shortstrandle(self,kwargs):
-        print("**Strategy - shortstrandle : uncertain : LONG Call  and Long Put of same Strike Price")
+        print("**Strategy - shortstrandle : not much movement : short Call  and short Put of same Strike Price")
         maxLoss = OptionsStrategiesPayoff().buy * kwargs["ATMStrikeCE"] + kwargs["ATMStrikePE"] * OptionsStrategiesPayoff().buy
-        print(" maxLoss at ATM  :  {} and maxprofit : unlimited  ".format(maxLoss))
-        print(" maxLoss at OTM  :  {} and maxprofit : unlimited  ".format( OptionsStrategiesPayoff().buy * kwargs["OTMStrikeCE"] + kwargs["OTMStrikeCE"] * OptionsStrategiesPayoff().buy))
-        print(" maxLoss at ITM  :  {} and maxprofit : unlimited  ".format( OptionsStrategiesPayoff().buy * kwargs["ITMStrikeCE"] + kwargs["ITMStrikeCE"] * OptionsStrategiesPayoff().buy))
+        print(" maxprofit at ATM  :  {} and maxLoss : unlimited  ".format(maxLoss))
+        print(" maxprofit at OTM  :  {} and maxLoss : unlimited  ".format( OptionsStrategiesPayoff().buy * kwargs["OTMStrikeCE"] + kwargs["OTMStrikeCE"] * OptionsStrategiesPayoff().buy))
+        print(" maxprofit at ITM  :  {} and maxLoss : unlimited  ".format( OptionsStrategiesPayoff().buy * kwargs["ITMStrikeCE"] + kwargs["ITMStrikeCE"] * OptionsStrategiesPayoff().buy))
 
     def butterfly(self,*args,kwargs):
         pass
@@ -169,18 +169,18 @@ if __name__ == "__main__":
     expectation = np.nan
     HighestDelta = np.nan
     StrikeRange = np.arange(17000,18000,50),
-    ATMStrike = 17200,
-    ATMStrikeCE = 110,
-    ATMStrikePE = 70,
-    ITMStrike = 17000,
-    ITMStrikePE = 26,
-    ITMStrikeCE = 268,
-    OTMStrike = 17400,
-    OTMStrikeCE = 25,
-    OTMStrikePE = 183,
-    OTMStrike_2 = 17800,
-    OTMStrikeCE_2 = 20,
-    OTMStrikePE_2 = 170,
+    ATMStrike = 1680,
+    ATMStrikeCE = 61,
+    ATMStrikePE = 50,
+    ITMStrike = 1660,
+    ITMStrikePE = 41,
+    ITMStrikeCE = 72,
+    OTMStrike = 1760,
+    OTMStrikeCE = 27,
+    OTMStrikePE = 94,
+    OTMStrike_2 = 1800,
+    OTMStrikeCE_2 = 17,
+    OTMStrikePE_2 = 126,
     data = pd.DataFrame( {"Strike":[1,2,3,4,5,6],"Premium":[1,2,6,4,3,5]})
 
     #new_delta_ =  OptionsStrategiesRecommendation().osrecom(HighestDelta = np.nan ,MarketView = MarketView, deltahedge = deltahedge, data= data)

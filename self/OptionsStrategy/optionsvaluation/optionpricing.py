@@ -14,7 +14,7 @@ pd.set_option('display.width', desired_width)
 pd.set_option('display.max_columns', 30)
 import matplotlib.pyplot as plt
 from datetime import datetime,date
-
+import traceback
 
 
 class OptionPricing:
@@ -234,25 +234,29 @@ class optionsGreeks():
         print("DataFrame lenght : {}".format(len(opt)))
         for i in range(0, len(opt)):
             print(i)
-            if opt.iloc[i]['Option_Type'] == 'CE':
-                opt.iloc[i, opt.columns.get_loc('impliedvolatility')] = mibian.BS([opt.iloc[i]['Future_Prices'],
-                                                                    opt.iloc[i]['Strike_Price'],
-                                                                    0,
-                                                                    opt.iloc[i]['time_diff']],
-                                                                   callPrice=opt.iloc[i]['Close']
-                                                                   ).impliedVolatility
-            else:
-                opt.iloc[i, opt.columns.get_loc('impliedvolatility')] = mibian.BS([opt.iloc[i]['Future_Prices'],
-                                                                    opt.iloc[i]['Strike_Price'],
-                                                                    0,
-                                                                    opt.iloc[i]['time_diff']],
-                                                                   putPrice=opt.iloc[i]['Close']
-                                                                   ).impliedVolatility
+            try:
+                if opt.iloc[i]['Option_Type'] == 'CE':
+                    opt.iloc[i, opt.columns.get_loc('impliedvolatility')] = mibian.BS([opt.iloc[i]['Future_Prices'],
+                                                                        opt.iloc[i]['Strike_Price'],
+                                                                        0,
+                                                                        opt.iloc[i]['time_diff']],
+                                                                       callPrice=opt.iloc[i]['Close']
+                                                                       ).impliedVolatility
+                else:
+                    opt.iloc[i, opt.columns.get_loc('impliedvolatility')] = mibian.BS([opt.iloc[i]['Future_Prices'],
+                                                                        opt.iloc[i]['Strike_Price'],
+                                                                        0,
+                                                                        opt.iloc[i]['time_diff']],
+                                                                       putPrice=opt.iloc[i]['Close']
+                                                                       ).impliedVolatility
+                print(opt.iloc[i])
+            except:
+                print("failed to calculate implied volatility : {}".format(i))
         return opt
 
     def time_to_expiry(self,opt):
         opt.Expiry = pd.to_datetime(opt["Expiry"])
-        opt.Date = pd.to_datetime(opt["Date"])
+        opt.Date  = pd.to_datetime(opt.Date,format="%d-%m-%Y %H:%M:%S")
         opt['time_diff'] = (opt.Expiry - opt.Date).dt.days + 1
         return opt
 
@@ -261,14 +265,12 @@ class optionsGreeks():
         print("Delta calculation")
         opt['delta'] = np.nan
         for i in range(0, len(opt)):
-            print(opt.iloc[i])
             try:
                 if opt.iloc[i]['Option_Type'] == 'CE':
                     opt.iloc[i, opt.columns.get_loc('delta')] = mibian.BS([opt.iloc[i]['Future_Prices'],
-                                                                           opt.iloc[i]['Strike_Price'],
-                                                                           0,
+                                                                           opt.iloc[i]['Strike_Price'],                          0,
                                                                            opt.iloc[i]['time_diff']],
-                                                                          volatility=opt.iloc[i]['impliedvolatility']
+                                                                           volatility=opt.iloc[i]['cal_impliedvolatility']
                                                                           ).callDelta
                 else:
                     opt.iloc[i, opt.columns.get_loc('delta')] = mibian.BS([opt.iloc[i]['Future_Prices'],
@@ -277,8 +279,11 @@ class optionsGreeks():
                                                                            opt.iloc[i]['time_diff']],
                                                                           volatility=opt.iloc[i]['impliedvolatility']
                                                                           ).putDelta
-            except:
+                print(opt.iloc[i])
+            except Exception as e:
                 print ("Failed to calcualte detta for row  : {}".format(i))
+                print (str(e))
+                traceback.print_exc()
         return opt
 
     def gamma_options(self, opt):
@@ -301,6 +306,7 @@ class optionsGreeks():
                                                                            opt.iloc[i]['time_diff']],
                                                                           volatility=opt.iloc[i]['impliedvolatility']
                                                                           ).gamma
+                print(opt.iloc[i])
             except:
                   print ("Failed to calcualte gamma for row  : {}".format(i))
         return opt
@@ -323,6 +329,7 @@ class optionsGreeks():
                                                                            opt.iloc[i]['time_diff']],
                                                                           volatility=opt.iloc[i]['impliedvolatility']
                                                                           ).callTheta
+                print(opt.iloc[i])
             except:
                 print("Failed to calculate theta for row  : {}".format(i))
         return opt
@@ -345,6 +352,8 @@ class optionsGreeks():
                                                                            opt.iloc[i]['time_diff']],
                                                                           volatility=opt.iloc[i]['impliedvolatility']
                                                                           ).vega
+
+                print(opt.iloc[i])
             except:
                 print("Failed to calculate vega for row  : {}".format(i))
         return opt

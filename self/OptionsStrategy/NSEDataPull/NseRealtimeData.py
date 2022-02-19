@@ -37,8 +37,10 @@ class nseRealTime():
 
 
        def OptionChain(self,ticker,instrument,option_expiry):
+              print("inside options chain")
               ns_  = nse.get_quote(ticker,Segment.OPT,option_expiry)
               df_ = nse.option_chain(ticker,option_expiry)
+              print(df_)
               Call_ = df_.copy(deep=True)
               Put_ = df_.copy(deep=True)
               list_CE = [col for col in df_.columns if col.startswith('CE')]
@@ -69,12 +71,12 @@ class nseRealTime():
               today = dateTimeObj.strftime("%d-%m-%Y %H:%M:%S")
               print("Date_ {}".format(today))
               df_callPut["Date"] = today
-              df_callPut["Date"] = pd.to_datetime(df_callPut["Date"])
+              df_callPut["Date"] = dateTimeObj.strftime("%d-%m-%Y %H:%M:%S")
               #df_callPut["Date"] = today.strftime("%d-%m-%Y")
               #df_callPut["Date"] = pd.to_datetime(df_callPut["Date"])
               df_callPut = df_callPut.rename(
                      columns={"expiryDate": "Expiry", "strikePrice": "Strike Price", "underlyingValue": "Future_Prices",
-                              "openInterest": "OPEN_INT", "impliedVolatility": "lib_impliedVolatility"})
+                              "openInterest": "OPEN_INT", "impliedVolatility": "lib_impliedvolatility"})
 
               return df_callPut
 

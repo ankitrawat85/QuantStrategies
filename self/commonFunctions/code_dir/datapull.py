@@ -49,7 +49,7 @@ import scipy.stats as stats
 import random
 import warnings
 import matplotlib.pyplot as plt
-from yahoofinancials import YahooFinancials
+#from yahoofinancials import YahooFinancials
 # Import get_history function from nsepy module
 from nsepy import get_history
 

@@ -59,7 +59,7 @@ def recognize_candlestick(df):
     op = df['Open'].astype(float)
     hi = df['High'].astype(float)
     lo = df['Low'].astype(float)
-    cl = df['Adj Close'].astype(float)
+    cl = df['Close'].astype(float)
 
     candle_names = talib.get_function_groups()['Pattern Recognition']
 
