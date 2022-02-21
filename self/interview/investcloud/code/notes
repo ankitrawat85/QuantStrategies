@@ -1,0 +1,46 @@
+he Vasicek, Brennan-Schwartz, Cox-Ingersoll-Ross, and other models discussed in
+Chapter 4 made various assumptions about the nature of the stochastic process
+ that drives interest rates in defining the term structure
+Nelson Siegel model is widely used in the financial market for fixed income products. However, there is one drawback i.e. it is unable to handle change in slope and curvature in curve along the tenors. Owing to this an enhancement was suggested via a new model.
+This model is an extension to the existing Nelson Siegel model called the Nelson Siegel Svensson model
+
+Good estimates of the term structure of interest rates (also known as the spot rate curve or the zero bond yield curve)
+are of the utmost importance to investors and policy makers. One of the term structure estimation methods, initiated by
+Bliss and Fama (1987), is the smoothed bootstrap. Bliss and Fama (1987) bootstrap discrete spot rates from market data
+and then fit a smooth and continuous curve to the data. Although various curve fitting spline methods have been introduced
+(quadratic and cubic splines (McCulloch (1971, 1975)), exponential splines (Vasicek and Fong (1982)), B‐splines (Shea (1984)
+and Steeley (1991)), quartic maximum smoothness splines (Adams and Van Deventer (1994)) and penalty function based splines
+(Fisher, Nychka and Zervos (1994), Waggoner (1997)), these methods have been criticized on the one hand for having undesirable
+economic properties and on the other hand for being ‘black box’ models (Seber and Wild (2003)). Nelson and Siegel (1987)
+and Svensson (1994, 1996)
+therefore suggested parametric curves that are flexible enough to describe a whole family of observed term structure shapes.
+
+In addition to the level, slope and curvature factors present in the Nelson‐Siegel model, the Svensson model contains a second hump/trough
+factor which allows for an even broader and more complicated range of term structure shapes
+
+---
+Commonly adopted methods to extract the ZCYC from the traded YTM are the Bootstrap and the Parametric form of ZCYC models.
+1.Bootstrap
+2. Parametric -Nelson-Siegel mode
+e authors conclude that each one of these three factors governs the part of the yield curve where they have more impact; long (β1), short (β2) and medium term (β3), respectively.
+There is a fourth factor (not entirely described), λ, that can be interpreted as a decay factor.
+The value of λ affects the fitting power of the model for different segments of the curve.
+-
+
+Fabozzi, Martellini and Priaulet (2005) and Diebold and Li (2006) benchmarked Nelson‐Siegel forecasts against other models in term structure forecasts,
+ and they found it performs well, especially for longer forecast horizons
+
+ 1. he Nelson‐Siegel model is highly nonlinear which causes many users to report estimation problems
+ 2. Nelson and Siegel (1987) transformed the nonlinear estimation problem into a simple linear problem, by fixing the shape parameter that causes the nonlinearity
+ 3. In order to obtain parameter estimates, they computed the OLS estimates of a series of models conditional upon a grid of the fixed shape parameter.
+ 4. The estimates that, conditional upon a fixed shape parameter, maximized the R2 were chosen. We refer to their procedure as a grid search
+ 5. Others have suggested to estimate the Nelson‐Siegel parameters simultaneously using nonlinear optimization techniques. Cairns and Pritchard (2001), however,
+  show that the estimates of the Nelson‐Siegel model are very sensitive to the starting values used in the optimization
+6. Siegel (1987) chose a first degree polynomial which makes the Laguerre function in the Nelson‐Siegel model generate a hump (β2 > 0)
+ or a trough (β2 < 0). The higher the absolute value of β2, the more pronounced the hump/trough is.
+7. he coefficient λ, referred to as the shape parameter, determines both the steepness of the slope factor and the location of the maximum (resp. minimum) of the Laguerre function.
+8. When the time to maturity grows to infinity, the slope and curvature component vanish and the long‐term forward and spot rate will converge to the same constant level of interest rate, β0. Based on economic intuition, we assume β0 to be close to the empirical long‐term spot rate and not to be negative or unrealistically high. When the time to maturity approaches zero, only the curvature component vanishes and the forward and the spot rate converge to (β0 + β1). The spread, ‐ β1, measures the slope of the term structure, whereby a negative (positive) β1 represents an upward (downward) slope. The degree of the curvature is controlled by β2, the rate at which the slope and curvature component decay to zero
+9. inally, the location of the maximum/minimum value of curvature component is determined by λ. Note that λ determines both the shape of the curvature component and the hump/trough of the term structure. By maximizing the curvature component in the spot rate function with respect to λ, we are able to determine the location of the hump/trough of the term structure.
+10. e curvature component in the forward rate and the spot rate are depicted for shape parameters ranging from 1 to 10. The curvature component in the forward rate curve reaches its maximum when τ = λ, whereas that in the spot rate curve reaches its maximum when τ > λ, which is determined by simply maximizing r2 in Equation 2.3 with λ fixed.
+https://mpra.ub.uni-muenchen.de/68377/1/MPRA_paper_68377.pdf
+https://dspace.cuni.cz/bitstream/handle/20.500.11956/71966/BPTX_2013_2_11230_0_387924_0_151485.pdf?sequence=1&isAllowed=y
