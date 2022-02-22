@@ -1,0 +1,128 @@
+
+Python 3.9.6 (default, Aug 18 2021, 12:38:10)
+Type 'copyright', 'credits' or 'license' for more information
+IPython 7.29.0 -- An enhanced Interactive Python. Type '?' for help.
+PyDev console: using IPython 7.29.0
+Python 3.9.6 (default, Aug 18 2021, 12:38:10)
+[Clang 10.0.0 ] on darwin
+runfile('/Users/myworld/Desktop/smu/Classes/Self/Code/Quant/QR/self/interview/investcloud/code/yeidCurve.py', wdir='/Users/myworld/Desktop/smu/Classes/Self/Code/Quant/QR/self/interview/investcloud/code')
+Root directory : /Users/myworld/Desktop/smu/Classes/Self/Code/Quant/QR/self/interview/investcloud/code
+WARNING:root:This message will get logged on to a file
+INFO:root:Started
+INFO:root:Bond Prices :
+      BondId       Date   Price
+500       1 2019-09-26  94.542
+501       1 2019-09-27  94.662
+502       1 2019-09-30  94.719
+503       1 2019-10-01  94.911
+504       1 2019-10-02  95.098
+INFO:root:Bond Details :
+    BondId MaturityDate
+0       0   2022-02-15
+1       1   2023-02-15
+2       2   2024-02-15
+3       3   2025-02-15
+4       4   2026-02-15
+INFO:root:Dataframe Merged :
+    BondId       Date   Price MaturityDate
+0       0 2019-09-26  96.022   2022-02-15
+1       0 2019-09-27  96.094   2022-02-15
+2       0 2019-09-30  96.125   2022-02-15
+3       0 2019-10-01  96.286   2022-02-15
+4       0 2019-10-02  96.424   2022-02-15
+INFO:root:Time to Expiry calculation  :
+    BondId       Date   Price MaturityDate  time_to_expiry
+0       0 2019-09-26  96.022   2022-02-15        2.425000
+1       0 2019-09-27  96.094   2022-02-15        2.422222
+2       0 2019-09-30  96.125   2022-02-15        2.413889
+3       0 2019-10-01  96.286   2022-02-15        2.411111
+4       0 2019-10-02  96.424   2022-02-15        2.408333
+INFO:root:Initiating Continuously compounded Zero rate Calculation......
+INFO:root:Continuos Zero Rate calculation computation completed
+INFO:root: Continuously compounded Spot Rate   :
+    BondId       Date   Price MaturityDate  time_to_expiry  SpotRate
+0       0 2019-09-26  96.022   2022-02-15        2.425000  0.016739
+1       0 2019-09-27  96.094   2022-02-15        2.422222  0.016449
+2       0 2019-09-30  96.125   2022-02-15        2.413889  0.016372
+3       0 2019-10-01  96.286   2022-02-15        2.411111  0.015697
+4       0 2019-10-02  96.424   2022-02-15        2.408333  0.015120
+INFO:root:Yield Curve  :
+ BondId             0         1         2         3         4         5         6         7
+Date
+2019-09-26  0.016739  0.016321  0.016245  0.016325  0.016613  0.017279  0.018296  0.020069
+2019-09-27  0.016449  0.015965  0.016018  0.016108  0.016452  0.017093  0.018248  0.020038
+2019-09-30  0.016372  0.015828  0.015862  0.015992  0.016452  0.017006  0.018130  0.019923
+2019-10-01  0.015697  0.015250  0.015336  0.015631  0.016027  0.016707  0.017828  0.019825
+2019-10-02  0.015120  0.014687  0.014828  0.015045  0.015573  0.016351  0.017540  0.019621
+INFO:root:Tenor  :
+ BondId             0         1         2         3         4         5          6          7
+Date
+2019-09-26  2.425000  3.438889  4.452778  5.469444  6.483333  8.511111  11.555556  17.644444
+2019-09-27  2.422222  3.436111  4.450000  5.466667  6.480556  8.508333  11.552778  17.641667
+2019-09-30  2.413889  3.427778  4.441667  5.458333  6.472222  8.500000  11.544444  17.633333
+2019-10-01  2.411111  3.425000  4.438889  5.455556  6.469444  8.497222  11.541667  17.630556
+2019-10-02  2.408333  3.422222  4.436111  5.452778  6.466667  8.494444  11.538889  17.627778
+INFO:root:Initiating NS method ......
+INFO:root:NS method calibration commpleted
+INFO:root:Set of output paramters post NS  :
+             lambda     a_lst     b_lst     c_lst rsquared_lst rmse
+Date
+2019-09-26    0.5  0.016181 -0.000102  0.000011     0.975519  0.0
+2019-09-27    0.5   0.01589 -0.000115  0.000012     0.980138  0.0
+2019-09-30   0.45  0.015661 -0.000188  0.000022     0.974589  0.0
+2019-10-01    0.4  0.014883  -0.00035  0.000045     0.983631  0.0
+2019-10-02   0.35  0.013936 -0.000644  0.000092     0.984226  0.0)
+INFO:root:Set of predicted yield paramters post NS  :
+  BondId             0         1         2         3         4         5         6         7
+Date
+2019-09-26  0.016343  0.016392  0.016459   0.01655  0.016675  0.017075  0.018324  0.020069
+2019-09-27  0.016072  0.016127  0.016202  0.016305  0.016445  0.016893  0.018289  0.020038
+2019-09-30  0.015935  0.016006  0.016098  0.016219  0.016377   0.01685  0.018158  0.019923
+2019-10-01  0.015353  0.015455  0.015582  0.015743  0.015944  0.016507  0.017894  0.019824
+2019-10-02  0.014733  0.014874  0.015045  0.015252    0.0155  0.016151   0.01759   0.01962)
+INFO:root:Stat output based on comparision btween actual vs predicted spot rates  :
+         Max       Min       Std  rsquared_lst  lambda
+0  0.000225 -0.000396  0.000209      0.975519    0.50
+1  0.000197 -0.000377  0.000201      0.980138    0.50
+2  0.000236 -0.000437  0.000227      0.974589    0.45
+3  0.000246 -0.000344  0.000202      0.983631    0.40
+4  0.000217 -0.000388  0.000215      0.984226    0.35
+INFO:root:Calibration completed
+INFO:root:investcloud_NS_paramters.csv file generated sucessfully
+INFO:root:investcloud_NS_predicted_spot.csvfile generated sucessfully
+INFO:root:investcloud_NSActualPreredictedStatsComp.csv generated sucessfully
+INFO:root:Completed
+INFO:root:Bond price calculation initiated.....
+INFO:root:NS calibration
+INFO:root:Initiating NS method ......
+INFO:root:NS method calibration commpleted
+INFO:root:Set of output paramters post NS  :
+    lambda     a_lst     b_lst     c_lst rsquared_lst      rmse
+0   0.05 -3.140685 -5.843273  2.692465     0.984838  0.000001)
+INFO:root:Set of predicted yield paramters post NS  :
+            0         1         2         3         4         5
+0  0.015616  0.020624  0.025127  0.029104  0.032534  0.035394)
+INFO:root:Best fit param: 0.05
+INFO:root:a: [-3.1406853718791936],b : [-5.843273217753669],c : [2.692465292105682], lambda : 0.05
+INFO:root:Bond price calculation completed
+INFO:root:   TimePeriod  SpotRate  CouponRate  cashflow  discountFactor  presentValue
+0         0.5  0.015616           4       2.0        0.992222      1.984445
+1         1.0  0.020624           4       2.0        0.979587      1.959174
+2         1.5  0.025127           4       2.0        0.963011      1.926021
+3         2.0  0.029104           4       2.0        0.943453      1.886906
+4         2.5  0.032534           4       2.0        0.921885      1.843769
+5         3.0  0.035394           4     102.0        0.899260     91.724556
+INFO:root:Bond cash flow  :
+    TimePeriod  SpotRate  CouponRate  cashflow  discountFactor  presentValue
+0         0.5  0.015616           4       2.0        0.992222      1.984445
+1         1.0  0.020624           4       2.0        0.979587      1.959174
+2         1.5  0.025127           4       2.0        0.963011      1.926021
+3         2.0  0.029104           4       2.0        0.943453      1.886906
+4         2.5  0.032534           4       2.0        0.921885      1.843769
+5         3.0  0.035394           4     102.0        0.899260     91.724556
+INFO:root:Details of bond price cash flow saved in spreadsheet : bond_pricing.csv
+INFO:root: Present Price  of Bond based on NS method : 101.32487098185433
+INFO:root:daily portfolio VAR  using Delta appraoch: 11.643955133971449
+INFO:root: Yearly portfolio VAR Delta appraoch : 222.45745048010446
+INFO:root: Daily Portfolio Var using delta Gamma Appraoch  : -8.897469606654305
+INFO:root:Portfolio VAR based on full revaluation method :  -9.038717027332787
