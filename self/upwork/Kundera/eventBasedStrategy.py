@@ -17,6 +17,7 @@ desired_width=320
 pd.set_option('display.max_columns', 20)
 pd.set_option('display.width', 2000)
 
+
 from enum import Enum
 
 # Define an enumeration class
