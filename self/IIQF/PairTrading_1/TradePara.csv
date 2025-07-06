@@ -1,0 +1,2 @@
+CapitalAllocated,MaxCapitalToDeploy,BuyMargin,SellMargin,Target,StopLoss,TradingCost
+1000000,0.8,0.2,0.2,0.1,0.02,0.001

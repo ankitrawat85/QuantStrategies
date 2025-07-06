@@ -1,0 +1,2 @@
+UserID,Password,APIKey,APISecret,RequestToken,AccessToken,AccountID,Capital,MaxDeploy,BuyMargin,SellMargin,PLTarget,PLStoploss,RSIPeriod,RSILongEntry,RSIShortEntry,MACDShortPeriod,MACDLongPeriod,MACDLongEntry,MACDShortEntry,MACDHShortPeriod,MACDHLongPeriod,MACDHSignalPeriod,MACDHLongEntry,MACDHShortEntry
+,,,,,,,300000,0.8,0.2,0.2,0.02,0.02,14,60,30,12,26,,,12,26,9,,
