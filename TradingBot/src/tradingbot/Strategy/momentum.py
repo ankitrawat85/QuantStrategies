@@ -46,14 +46,11 @@ def calculate_momentum(daily_prices, lookback_months=12, skip_months=1, return_t
     if not isinstance(daily_prices.index, pd.DatetimeIndex):
         raise ValueError("Input must have DateTimeIndex")
     
-    # Resample to monthly prices (using last trading day of month)
-    monthly_prices = daily_prices.resample('M').last()
-    
     # Calculate monthly returns
     if return_type == 'arithmetic':
-        monthly_returns = monthly_prices.pct_change().dropna()
+        monthly_returns = daily_prices.pct_change().dropna()
     elif return_type == 'log':
-        monthly_returns = np.log(monthly_prices/monthly_prices.shift(1)).dropna()
+        monthly_returns = np.log(daily_prices/daily_prices.shift(1)).dropna()
     else:
         raise ValueError("return_type must be 'arithmetic' or 'log'")
     
@@ -61,6 +58,7 @@ def calculate_momentum(daily_prices, lookback_months=12, skip_months=1, return_t
     momentum = monthly_returns.rolling(lookback_months).sum().shift(skip_months)
     
     return momentum
+
 
 # ======================
 # 3. PORTFOLIO CONSTRUCTION

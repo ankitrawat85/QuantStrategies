@@ -380,8 +380,14 @@ class CandlePatternRecognizer:
         return candle
 
     @staticmethod
-    def identify_pattern(ohlc_df, ohlc_day):    
+    def identify_pattern(shorter_df, long_period_df):    
         """Identify candlestick patterns with significance"""
+        #strategy(symbol, shorter_df ,long_period_df)
+#        (symbol, ohlc_day_df, min_df=None  )
+
+        ohlc_df = shorter_df
+        ohlc_day =long_period_df  
+
         pattern = None
         significance = "low"
         avg_candle_size = abs(ohlc_df["close"] - ohlc_df["open"]).median()
@@ -410,35 +416,35 @@ class CandlePatternRecognizer:
             pattern = "maru_bozu_bearish"
             
         elif candle_type == "hammer":
-            if trend == "uptrend":
+            if trend == 1:
                 pattern = "hanging_man_bearish"
             elif trend == "downtrend":
                 pattern = "hammer_bullish"
                 
-        elif candle_type == "shooting_star" and trend == "uptrend":
+        elif candle_type == "shooting_star" and trend == 1:
             pattern = "shooting_star_bearish"
             
-        elif (candle_type == "doji" and trend == "uptrend" and 
+        elif (candle_type == "doji" and trend == 1 and 
               ohlc_df["high"].iloc[-1] < ohlc_df["close"].iloc[-2] and 
               ohlc_df["low"].iloc[-1] > ohlc_df["open"].iloc[-2]):
             pattern = "harami_cross_bearish"
             
-        elif (candle_type == "doji" and trend == "downtrend" and 
+        elif (candle_type == "doji" and trend == -1 and 
               ohlc_df["high"].iloc[-1] < ohlc_df["open"].iloc[-2] and 
               ohlc_df["low"].iloc[-1] > ohlc_df["close"].iloc[-2]):
             pattern = "harami_cross_bullish"
             
-        elif (candle_type != "doji" and trend == "uptrend" and 
+        elif (candle_type != "doji" and trend == 1 and 
               ohlc_df["open"].iloc[-1] > ohlc_df["high"].iloc[-2] and 
               ohlc_df["close"].iloc[-1] < ohlc_df["low"].iloc[-2]):
             pattern = "engulfing_bearish"
             
-        elif (candle_type != "doji" and trend == "downtrend" and 
+        elif (candle_type != "doji" and trend == -1 and 
               ohlc_df["close"].iloc[-1] > ohlc_df["high"].iloc[-2] and 
               ohlc_df["open"].iloc[-1] < ohlc_df["low"].iloc[-2]):
             pattern = "engulfing_bullish"
-        
-        return f"Significance - {significance}, Pattern - {pattern}"
+
+        return {'significance':significance,'pattern':pattern}
 
 
 class PivotCalculator:
