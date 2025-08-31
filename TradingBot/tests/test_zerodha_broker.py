@@ -72,11 +72,9 @@ get_quote_list_data = zerodha1.get_quote_list(get_quote_list_data_1)
 # Save data to CSV
 zerodha1.save_quotes_to_csv(
     get_quote_list_data,
-    #filters={"volume": (10000, 10000000), "close": (300, 3000)},
     filters={"close": (300, 3000)},
     filename=filePath+"large_cap_stocks.csv"
 )
-
 
 """
 ltp_data = zerodha1.get_ltp([

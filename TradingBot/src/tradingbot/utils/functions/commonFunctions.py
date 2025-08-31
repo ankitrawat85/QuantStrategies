@@ -1,5 +1,8 @@
+from __future__ import annotations
 import pandas as pd
 from tradingbot.DataMapping.financialDataMapping import *
+import pandas as pd
+import numpy as np
 
 def remove_duplicate_columns(df):
     """
@@ -79,3 +82,37 @@ def standardize_sales_columns(df):
     df = df.drop(columns=['Net Sales', 'Sales'], errors='ignore')
     
     return df
+
+def ensure_datetime_index(df: pd.DataFrame, date_col: str='date') -> pd.DataFrame:
+    if not isinstance(df.index, pd.DatetimeIndex):
+        if date_col in df.columns:
+            df = df.copy()
+            df[date_col] = pd.to_datetime(df[date_col])
+            df = df.set_index(date_col)
+        else:
+            raise ValueError("DataFrame must have a DatetimeIndex or a 'date' column.")
+    return df
+
+def compute_atr(ohlc: pd.DataFrame, length: int=14) -> pd.Series:
+    o = ohlc['open'].astype(float).values
+    h = ohlc['high'].astype(float).values
+    l = ohlc['low'].astype(float).values
+    c = ohlc['close'].astype(float).values
+    prev_c = np.roll(c, 1); prev_c[0] = c[0]
+    tr = np.maximum.reduce([h - l, np.abs(h - prev_c), np.abs(l - prev_c)])
+    atr = pd.Series(tr).rolling(length, min_periods=1).mean().values
+    return pd.Series(atr, index=ohlc.index, name=f'atr_{length}')
+
+def _zscore(x: pd.Series) -> pd.Series:
+    mu = x.mean()
+    sd = x.std(ddof=0) or 1.0
+    return (x - mu) / sd
+
+def _minmax(x: pd.Series, lo=None, hi=None) -> pd.Series:
+    if lo is None: lo = x.min()
+    if hi is None: hi = x.max()
+    rng = (hi - lo) or 1.0
+    return (x - lo) / rng
+
+def _cap01(x):
+    return np.minimum(1.0, np.maximum(0.0, x))

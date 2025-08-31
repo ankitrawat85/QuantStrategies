@@ -358,93 +358,129 @@ class CandlePatternRecognizer:
         return df
 
     @staticmethod
-    def get_candle_type(ohlc_df):    
-        """Get the candle type of the last candle"""
-        candle = None
-        
-        if CandlePatternRecognizer.identify_doji(ohlc_df)["doji"].iloc[-1]:
-            candle = "doji"    
-        
-        maru_bozu = CandlePatternRecognizer.identify_maru_bozu(ohlc_df)["maru_bozu"].iloc[-1]
-        if maru_bozu == "maru_bozu_green":
-            candle = "maru_bozu_green"       
-        elif maru_bozu == "maru_bozu_red":
-            candle = "maru_bozu_red"        
-        
-        if CandlePatternRecognizer.identify_shooting_star(ohlc_df)["sstar"].iloc[-1]:
-            candle = "shooting_star"        
-        
-        if CandlePatternRecognizer.identify_hammer(ohlc_df)["hammer"].iloc[-1]:
-            candle = "hammer"       
-        
-        return candle
+    def get_candle_type(ohlc_df, n: int = 7):
+        """Get candle patterns from the last n rows of ohlc_df."""
+        tail = ohlc_df.tail(n)
+        patterns = {}
+
+        for i, row in tail.iterrows():
+            pats = []
+
+            if CandlePatternRecognizer.identify_doji(tail).loc[i, "doji"]:
+                pats.append("doji")
+
+            maru = CandlePatternRecognizer.identify_maru_bozu(tail).loc[i, "maru_bozu"]
+            if maru in ["maru_bozu_green", "maru_bozu_red"]:
+                pats.append(maru)
+
+            if CandlePatternRecognizer.identify_shooting_star(tail).loc[i, "sstar"]:
+                pats.append("shooting_star")
+
+            if CandlePatternRecognizer.identify_hammer(tail).loc[i, "hammer"]:
+                pats.append("hammer")
+
+            if pats:
+                patterns[i] = pats
+
+        return patterns
+
 
     @staticmethod
-    def identify_pattern(shorter_df, long_period_df):    
-        """Identify candlestick patterns with significance"""
-        #strategy(symbol, shorter_df ,long_period_df)
-#        (symbol, ohlc_day_df, min_df=None  )
+    def identify_pattern(shorter_df, long_period_df):
+        """Identify candlestick patterns anchored to the date of the last detected pattern within last n bars."""
+        try:
+            ohlc_df = shorter_df
+            ohlc_day = long_period_df
 
-        ohlc_df = shorter_df
-        ohlc_day =long_period_df  
+            # ---- 1) Detect patterns in last 5 rows ----
+            candle_type_out = CandlePatternRecognizer.get_candle_type(ohlc_df, n=5)
 
-        pattern = None
-        significance = "low"
-        avg_candle_size = abs(ohlc_df["close"] - ohlc_df["open"]).median()
-        sup, res = PivotCalculator.calculate_support_resistance(ohlc_df, ohlc_day)
-        
-        if (sup - 1.5*avg_candle_size) < ohlc_df["close"].iloc[-1] < (sup + 1.5*avg_candle_size):
-            significance = "HIGH"
-            
-        if (res - 1.5*avg_candle_size) < ohlc_df["close"].iloc[-1] < (res + 1.5*avg_candle_size):
-            significance = "HIGH"
-        
-        candle_type = CandlePatternRecognizer.get_candle_type(ohlc_df)
-        trend = TrendAnalyzer.assess_trend(ohlc_df.iloc[:-1,:], 7)
-        
-        if candle_type == 'doji':
-            if (ohlc_df["close"].iloc[-1] > ohlc_df["close"].iloc[-2] and 
-                ohlc_df["close"].iloc[-1] > ohlc_df["open"].iloc[-1]):
-                pattern = "doji_bullish"
-            elif (ohlc_df["close"].iloc[-1] < ohlc_df["close"].iloc[-2] and 
-                  ohlc_df["close"].iloc[-1] < ohlc_df["open"].iloc[-1]):
-                pattern = "doji_bearish" 
-                
-        elif candle_type == "maru_bozu_green":
-            pattern = "maru_bozu_bullish"
-        elif candle_type == "maru_bozu_red":
-            pattern = "maru_bozu_bearish"
-            
-        elif candle_type == "hammer":
-            if trend == 1:
-                pattern = "hanging_man_bearish"
-            elif trend == "downtrend":
-                pattern = "hammer_bullish"
-                
-        elif candle_type == "shooting_star" and trend == 1:
-            pattern = "shooting_star_bearish"
-            
-        elif (candle_type == "doji" and trend == 1 and 
-              ohlc_df["high"].iloc[-1] < ohlc_df["close"].iloc[-2] and 
-              ohlc_df["low"].iloc[-1] > ohlc_df["open"].iloc[-2]):
-            pattern = "harami_cross_bearish"
-            
-        elif (candle_type == "doji" and trend == -1 and 
-              ohlc_df["high"].iloc[-1] < ohlc_df["open"].iloc[-2] and 
-              ohlc_df["low"].iloc[-1] > ohlc_df["close"].iloc[-2]):
-            pattern = "harami_cross_bullish"
-            
-        elif (candle_type != "doji" and trend == 1 and 
-              ohlc_df["open"].iloc[-1] > ohlc_df["high"].iloc[-2] and 
-              ohlc_df["close"].iloc[-1] < ohlc_df["low"].iloc[-2]):
-            pattern = "engulfing_bearish"
-            
-        elif (candle_type != "doji" and trend == -1 and 
-              ohlc_df["close"].iloc[-1] > ohlc_df["high"].iloc[-2] and 
-              ohlc_df["open"].iloc[-1] < ohlc_df["low"].iloc[-2]):
-            pattern = "engulfing_bullish"
+            # ---- 2) Pick anchor date (latest pattern in window) ----
+            anchor_ts = None
+            anchor_patterns = []
 
-        return {'significance':significance,'pattern':pattern}
+            if isinstance(candle_type_out, dict) and len(candle_type_out) > 0:
+                anchor_ts = max(candle_type_out.keys())
+                val = candle_type_out[anchor_ts]
+                anchor_patterns = [val] if isinstance(val, str) else list(val)
+            elif isinstance(candle_type_out, (list, tuple, set)) and len(candle_type_out) > 0:
+                anchor_ts = ohlc_df.index[-1]
+                anchor_patterns = list(candle_type_out)
+            elif isinstance(candle_type_out, str) and candle_type_out:
+                anchor_ts = ohlc_df.index[-1]
+                anchor_patterns = [candle_type_out]
+            else:
+                return {"date": None, "significance": "low", "pattern": None}
+
+            if anchor_ts is None:
+                anchor_ts = ohlc_df.index[-1]
+
+            # ---- 3) Extract OHLC at anchor ----
+            anchor_idx = ohlc_df.index.get_loc(anchor_ts)
+            row = ohlc_df.iloc[anchor_idx]
+            last_open, last_close, last_high, last_low = row["open"], row["close"], row["high"], row["low"]
+
+            avg_candle_size = (ohlc_df["close"] - ohlc_df["open"]).abs().median()
+
+            # ---- 4) Support/Resistance significance ----
+            try:
+                sup, res = PivotCalculator.calculate_support_resistance(ohlc_df.iloc[:anchor_idx+1], ohlc_day)
+            except Exception:
+                sup, res = None, None
+
+            significance = "low"
+            if sup is not None and (sup - 1.5 * avg_candle_size) < last_close < (sup + 1.5 * avg_candle_size):
+                significance = "HIGH"
+            if res is not None and (res - 1.5 * avg_candle_size) < last_close < (res + 1.5 * avg_candle_size):
+                significance = "HIGH"
+
+            # ---- 5) Trend prior to anchor ----
+            try:
+                trend = TrendAnalyzer.assess_trend(ohlc_df.iloc[:anchor_idx, :], 7) if anchor_idx > 0 else 0
+            except Exception:
+                trend = 0
+
+            # ---- 6) Decide final pattern ----
+            pats = set(anchor_patterns)
+            pattern = None
+
+            if "doji" in pats and anchor_idx > 0:
+                prev_close = ohlc_df["close"].iloc[anchor_idx-1]
+                if (last_close > prev_close) and (last_close > last_open):
+                    pattern = "doji_bullish"
+                elif (last_close < prev_close) and (last_close < last_open):
+                    pattern = "doji_bearish"
+
+            if pattern is None:
+                if "maru_bozu_green" in pats: pattern = "maru_bozu_bullish"
+                elif "maru_bozu_red" in pats: pattern = "maru_bozu_bearish"
+
+            if pattern is None and "hammer" in pats:
+                if trend == 1: pattern = "hanging_man_bearish"
+                elif trend == -1: pattern = "hammer_bullish"
+
+            if pattern is None and "shooting_star" in pats and trend == 1:
+                pattern = "shooting_star_bearish"
+
+            if pattern is None and "doji" in pats and anchor_idx > 0:
+                prev = ohlc_df.iloc[anchor_idx-1]
+                if (trend == 1 and last_high < prev["close"] and last_low > prev["open"]):
+                    pattern = "harami_cross_bearish"
+                elif (trend == -1 and last_high < prev["open"] and last_low > prev["close"]):
+                    pattern = "harami_cross_bullish"
+
+            if pattern is None and "doji" not in pats and anchor_idx > 0:
+                prev = ohlc_df.iloc[anchor_idx-1]
+                if trend == 1 and (last_open > prev["high"]) and (last_close < prev["low"]):
+                    pattern = "engulfing_bearish"
+                elif trend == -1 and (last_close > prev["high"]) and (last_open < prev["low"]):
+                    pattern = "engulfing_bullish"
+
+            return {"date": anchor_ts, "significance": significance, "pattern": pattern}
+
+        except Exception as e:
+            print(f"Error {e}")
+            return {"date": None, "significance": "low", "pattern": None}
 
 
 class PivotCalculator:
@@ -468,42 +504,83 @@ class PivotCalculator:
         return (pivot, r1, r2, r3, s1, s2, s3)
 
     @staticmethod
-    def calculate_support_resistance(ohlc_df, ohlc_day):
+    def calculate_support_resistance(ohlc_df: pd.DataFrame, ohlc_day: dict):
         """
-        Calculate the closest resistance and support levels.
+        Calculate the closest resistance (above) and support (below) levels,
+        extrapolating synthetic levels when the current reference level lies outside
+        the range of standard pivots.
 
-        Parameters:
-        - ohlc_df: pd.DataFrame with intraday data
-        - ohlc_day: dict or Series with 'open', 'high', 'low', 'close'
+        Args:
+            ohlc_df: Intraday OHLC DataFrame with at least one row. Expected columns: ['open','high','low','close'].
+            ohlc_day: Daily OHLC as a dict-like with keys 'open','high','low','close' (used for pivot calculation).
 
         Returns:
-        - Tuple (closest_resistance, closest_support)
+            (closest_resistance, closest_support): resistance is nearest level above the current level;
+                support is nearest level below. If outside pivot extremes, synthetic levels are extrapolated.
         """
-        # Average level from latest candle
-        level = ((ohlc_df["close"].iloc[-1] + ohlc_df["open"].iloc[-1]) / 2 +
-                (ohlc_df["high"].iloc[-1] + ohlc_df["low"].iloc[-1]) / 2) / 2
+        if ohlc_df.empty:
+            return None, None
 
-        # Get pivot levels
-        p, r1, r2, r3, s1, s2, s3 = PivotCalculator.calculate_pivot_levels(ohlc_day)
+        # Compute reference level from latest intraday candle
+        try:
+            latest = ohlc_df.iloc[-1]
+            level = (
+                (latest["close"] + latest["open"]) / 2
+                + (latest["high"] + latest["low"]) / 2
+            ) / 2
+        except Exception as e:
+            print(f"[SupportResistance] failed to compute base level: {e}")
+            return None, None
 
-        levels = {
-            "p": p,
-            "r1": r1,
-            "r2": r2,
-            "r3": r3,
-            "s1": s1,
-            "s2": s2,
-            "s3": s3
-        }
+        # Compute pivot levels
+        try:
+            p, r1, r2, r3, s1, s2, s3 = PivotCalculator.calculate_pivot_levels(ohlc_day)
+            levels = {
+                "p": p,
+                "r1": r1,
+                "r2": r2,
+                "r3": r3,
+                "s1": s1,
+                "s2": s2,
+                "s3": s3
+            }
+        except Exception as e:
+            print(f"[SupportResistance] pivot level calculation error: {e}")
+            return None, None
 
-        # Differences from current level
-        lev_ser = pd.Series({k: level - v for k, v in levels.items()})
+        # Differences: positive means pivot is below level (support candidate), negative means pivot is above level (resistance candidate)
+        try:
+            diff_series = pd.Series({k: level - v for k, v in levels.items()})
 
-        # Support is the closest level below `level`, resistance is closest above
-        sup_key = lev_ser[lev_ser > 0].idxmin()  # Closest lower
-        res_key = lev_ser[lev_ser < 0].idxmax()  # Closest higher
+            support_candidates = diff_series[diff_series > 0]  # pivots below level
+            resistance_candidates = diff_series[diff_series < 0]  # pivots above level
 
-        return levels[res_key], levels[sup_key]
+            closest_support = None
+            closest_resistance = None
+
+            if not support_candidates.empty:
+                sup_key = support_candidates.idxmin()  # smallest positive diff => nearest below
+                closest_support = levels[sup_key]
+
+            if not resistance_candidates.empty:
+                res_key = resistance_candidates.idxmax()  # largest negative (closest above)
+                closest_resistance = levels[res_key]
+
+            # Extrapolate synthetic resistance if level is above all pivots (no native resistance)
+            if closest_resistance is None and closest_support is not None:
+                gap = level - closest_support
+                closest_resistance = level + gap  # symmetric projection above level
+
+            # Extrapolate synthetic support if level is below all pivots (no native support)
+            if closest_support is None and closest_resistance is not None:
+                gap = closest_resistance - level
+                closest_support = level - gap  # symmetric projection below level
+
+            return closest_resistance, closest_support
+
+        except Exception as e:
+            print(f"[SupportResistance] error selecting nearest levels: {e}")
+            return None, None
 
     @staticmethod
     def calculate_slope(ohlc_df, n):

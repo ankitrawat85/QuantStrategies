@@ -970,4 +970,72 @@ class ZerodhaAPI(TradingAPI):
         with open(file_path, mode="r") as f:
             return list(csv.DictReader(f))
         
+    def fetch_and_prepare_zerodha(self,
+        root_dir: str,
+        from_date: str,
+        to_date: str,
+        instrument_token: str,
+        interval: str = "day",                     # <-- NEW: interval param
+    ) -> pd.DataFrame:
+        cfg = os.path.join(root_dir, "config", "Broker", "zerodha.cfg")
+        zerodha = ZerodhaAPI(cfg)
+        raw = zerodha.get_historical_data(
+            instrument_token=instrument_token,
+            interval=interval,                     # <-- use it here
+            from_date=from_date,
+            to_date=to_date,
+            output_format='dataframe'
+        ).reset_index(drop=True)
+
+        ts = 'timestamp' if 'timestamp' in raw.columns else 'date'
+        raw[ts] = pd.to_datetime(raw[ts]).dt.tz_localize(None)
+        df = raw.set_index(ts).sort_index()
+        df = df.rename(columns={c: c.capitalize() for c in df.columns})
+        need = ['Open', 'High', 'Low', 'Close','Volume']
+        if not set(need).issubset(df.columns):
+            raise ValueError("Missing OHLCV columns after fetch.")
+        return df[need]
+
+    def _estimate_start(self,end_dt: pd.Timestamp, n_bars: int, interval: str) -> pd.Timestamp:
+        """
+        Simple lookback estimator: pad by ~25% so Zerodha returns at least n_bars.
+        Adjust if your market calendar requires more padding.
+        """
+        end_dt = pd.to_datetime(end_dt).to_pydatetime()
+        mins = {"minute":1,"3minute":3,"5minute":5,"10minute":10,"15minute":15,"30minute":30,"60minute":60}
+        if interval == "day":
+            delta = datetime.timedelta(days=int(n_bars * 1.3))
+        else:
+            step = mins.get(interval, 15)
+            delta = datetime.timedelta(minutes=int(n_bars * step * 1.25))
+        return pd.Timestamp(end_dt - delta)
+
+    def make_fetcher_zerodha_last_n(self,
+        root_dir: str,
+        instrument_token: str,
+        end_dt   : str,
+        n_bars   : int,
+        default_interval: str = "day"
+        ):
+        """
+        Returns a function: fetch_last_n(symbol, end_dt, n_bars, interval) -> DataFrame
+        'symbol' is ignored (you already have instrument_token).
+        """
+        def fetch_last_n(_root_dir:str,symbol: str, end_dt: pd.Timestamp, n_bars: int, interval: str = None) -> pd.DataFrame:
+            ivl = interval or default_interval
+            start_ts = self._estimate_start(end_dt, n_bars, ivl)
+
+            # Call your fetcher (now supports interval)
+            df = self.fetch_and_prepare_zerodha(
+                root_dir=_root_dir,
+                from_date=start_ts.strftime("%Y-%m-%d %H:%M:%S"),
+                to_date=pd.to_datetime(end_dt).strftime("%Y-%m-%d %H:%M:%S"),
+                instrument_token=symbol,
+                interval=ivl
+            )
+            # Return the last n bars exactly
+            return df.tail(n_bars).reset_index().rename(columns={"index": "timestamp"})
+        return fetch_last_n(root_dir,instrument_token,end_dt,n_bars,default_interval)
+
+
     

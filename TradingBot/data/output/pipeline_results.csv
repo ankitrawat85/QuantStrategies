@@ -1,0 +1,19 @@
+Strategy,Symbol,Side,BuyDate,BuyPrice,SellDate,SellPrice,Return,Stage,Chain
+MeanReversionEntry,MOIL,SELL,2025-06-05 12:05:00,386.25,2025-06-30 15:25:00,388.1,-0.004789644012945043,MeanReversionEntry,Volatility→MeanReversion
+MeanReversionEntry,MOIL,SELL,2025-06-06 10:30:00,389.9,2025-06-30 15:25:00,388.1,0.0046165683508590785,MeanReversionEntry,Volatility→MeanReversion
+MeanReversionEntry,MOIL,SELL,2025-06-09 10:50:00,392.45,2025-06-30 15:25:00,388.1,0.011084214549624069,MeanReversionEntry,Volatility→MeanReversion
+MeanReversionEntry,AARTIIND,SELL,2025-06-05 12:10:00,482.55,2025-06-30 15:25:00,479.35,0.006631437156771295,MeanReversionEntry,Volatility→MeanReversion
+MeanReversionEntry,AARTIIND,SELL,2025-06-09 12:20:00,481.85,2025-06-30 15:25:00,479.35,0.005188336619279858,MeanReversionEntry,Volatility→MeanReversion
+MeanReversionEntry,AARTIIND,SELL,2025-06-10 11:05:00,489.35,2025-06-30 15:25:00,479.35,0.020435271278226218,MeanReversionEntry,Volatility→MeanReversion
+MeanReversionEntry,ACC,SELL,2025-06-10 10:55:00,1913.0,2025-06-30 15:25:00,1920.7,-0.004025091479351827,MeanReversionEntry,Volatility→MeanReversion
+MeanReversionEntry,ACC,SELL,2025-06-11 12:30:00,1917.0,2025-06-30 15:25:00,1920.7,-0.0019300991131977285,MeanReversionEntry,Volatility→MeanReversion
+MeanReversionEntry,ACC,SELL,2025-06-26 10:25:00,1868.0,2025-06-30 15:25:00,1920.7,-0.028211991434689533,MeanReversionEntry,Volatility→MeanReversion
+MeanReversionEntry,ADANIENT,SELL,2025-06-06 12:25:00,2540.0,2025-06-30 15:25:00,2623.0,-0.03267716535433071,MeanReversionEntry,Volatility→MeanReversion
+MeanReversionEntry,ADANIENT,SELL,2025-06-09 11:25:00,2560.0,2025-06-30 15:25:00,2623.0,-0.024609375,MeanReversionEntry,Volatility→MeanReversion
+MeanReversionEntry,ADANIENT,SELL,2025-06-10 11:00:00,2587.3,2025-06-30 15:25:00,2623.0,-0.01379816797433611,MeanReversionEntry,Volatility→MeanReversion
+MeanReversionEntry,ADOR,SELL,2025-06-02 11:00:00,992.35,2025-06-30 15:25:00,1017.0,-0.024840026200433293,MeanReversionEntry,Volatility→MeanReversion
+MeanReversionEntry,ADOR,SELL,2025-06-05 10:45:00,983.9,2025-06-30 15:25:00,1017.0,-0.03364163024697634,MeanReversionEntry,Volatility→MeanReversion
+MeanReversionEntry,ADOR,SELL,2025-06-06 10:25:00,991.55,2025-06-30 15:25:00,1017.0,-0.025666885179769096,MeanReversionEntry,Volatility→MeanReversion
+MeanReversionEntry,AEGISLOG,SELL,2025-06-09 13:20:00,803.7,2025-06-30 15:25:00,778.85,0.03091949732487249,MeanReversionEntry,Volatility→MeanReversion
+MeanReversionEntry,AEGISLOG,SELL,2025-06-11 11:55:00,815.1,2025-06-30 15:25:00,778.85,0.04447307078886026,MeanReversionEntry,Volatility→MeanReversion
+MeanReversionEntry,AEGISLOG,SELL,2025-06-19 12:25:00,790.0,2025-06-30 15:25:00,778.85,0.014113924050632883,MeanReversionEntry,Volatility→MeanReversion
