@@ -36,7 +36,7 @@ import  sys
 
 # --------- Utilities ---------
 def _import_main_stream(path: str):
-    spec = importlib.util.spec_from_file_location("main_trendline_stream", path)
+    spec = importlib.util.spec_from_file_location("main_trendline_stream_backup", path)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     return mod
@@ -120,9 +120,9 @@ def run_methods(
     max_angle_deg: Optional[float] = None,
     parallel: bool = True,
     max_workers: Optional[int] = None,
-    write_plots: bool = False,
-    in_memory: bool = True,          # NEW: default to in-memory
-    write_csv: bool = False          # NEW: keep disk off by default
+    write_plots: bool = True,
+    in_memory: bool = False,          # NEW: default to in-memory
+    write_csv: bool = True          # NEW: keep disk off by default
 ) -> Dict[str, Dict[str, pd.DataFrame]]:
     """
     Run one or more methods on the given OHLCV DataFrame.

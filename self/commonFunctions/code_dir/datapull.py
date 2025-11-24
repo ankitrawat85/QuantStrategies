@@ -178,3 +178,8 @@ class models():
     
     def ARMA(self,data,p,q):
         return sm.tsa.ARMA(data, (p,q)).fit(disp=-1)
+    
+if __name__ :
+
+    x = data()
+    x.downloadData('')

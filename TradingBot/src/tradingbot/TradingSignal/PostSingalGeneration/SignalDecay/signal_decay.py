@@ -19,7 +19,7 @@ class DecayParams:
             decay_threshold=float(get('decay_threshold', 0.0) or 0.0),
         )
 
-def compute_decay_weights(ds, decay_lambda, decay_hold):
+def compute_decay_weights(ds, decay_lambda = 0.0, decay_hold = 0.0):
     ds = np.asarray(ds, dtype=int)
     if decay_lambda is None or float(decay_lambda) <= 0:
         return np.ones_like(ds, dtype=float)

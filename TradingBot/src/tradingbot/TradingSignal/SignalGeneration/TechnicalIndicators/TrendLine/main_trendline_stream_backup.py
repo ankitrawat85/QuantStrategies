@@ -714,8 +714,7 @@ def stream(args):
             return dt.iloc[ix]
 
         # Confidence floor (use CLI if provided, but never below 0.70)
-        min_conf_floor = 0.70
-        min_conf = max(float(getattr(args, 'min_confidence', min_conf_floor)), min_conf_floor)
+        min_conf = float(getattr(args, 'min_confidence', 0.0))
 
         # Draw broken lines (from events df)
         if isinstance(_ev_df, pd.DataFrame) and not _ev_df.empty:
@@ -913,7 +912,7 @@ def build_parser(defaults=None):
     p.add_argument("--env_basis", default= "close"),
     p.add_argument("--env_mode", default="shift_min"),
     p.add_argument("--env_k", default= 1.0)
-    p.add_argument("--write_plots", type=bool, default=False,help="Graph Creation")
+    p.add_argument("--write_plots", type=bool, default=True,help="Graph Creation")
 
     p.add_argument("--max-angle-deg", type=float, default=None,help="Reject any candidate trendline steeper than this absolute angle (deg) vs horizontal")
 

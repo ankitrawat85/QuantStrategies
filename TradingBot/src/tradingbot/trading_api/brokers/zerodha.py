@@ -280,7 +280,7 @@ class ZerodhaAPI(TradingAPI):
         """Get OHLC data"""
         response = self._make_request(
             "GET",
-            "ohlc",
+            "ohlcv",
             params={"i": f"{exchange}:{symbol}"}
         )
         if response and self._validate_response(response):

@@ -723,8 +723,7 @@ def stream(args,df_in=None):
             return dt.iloc[ix]
 
         # Confidence floor (use CLI if provided, but never below 0.70)
-        min_conf_floor = 0.70
-        min_conf = max(float(getattr(args, 'min_confidence', min_conf_floor)), min_conf_floor)
+        min_conf = float(getattr(args, 'min_confidence', 0.0))
 
         # Draw broken lines (from events df)
         if isinstance(_ev_df, pd.DataFrame) and not _ev_df.empty:
